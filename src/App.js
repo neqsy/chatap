@@ -1,6 +1,8 @@
+import Login from './pages/Login';
+
 function App() {
   return (
-    <p>Start page</p>
+    <Login/>
   );
 }
 
