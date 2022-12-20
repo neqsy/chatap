@@ -34,7 +34,7 @@ const Registration = () => {
                                 <Form.Group className="mb-3">
                                     <Button className="btn-white w-100 mt-4 py-2 rounded-4"><i class="fa-solid fa-user-plus"></i>Add avatar</Button>
                                 </Form.Group>
-                                <Button className="btn-blue w-100 rounded-4">Log in</Button>
+                                <Button className="btn-blue w-100 rounded-4">Register</Button>
                             </Form>
                         </Card.Body>
                     </Card>
