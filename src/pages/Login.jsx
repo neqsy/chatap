@@ -1,12 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
+import { useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 const Login = () => {
+    const [err, setErr] = useState(false);
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const email = e.target[0].value;
+        const password = e.target[1].value;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            navigate("/");
+        } catch (err) {
+            setErr(true);
+        }
+    }
+
     return (
         <Container className="bg-transparent">
             <Row className="justify-content-center">
@@ -18,7 +37,7 @@ const Login = () => {
                     <Card className="shadow-lg rounded-4">
                         <Card.Body className="py-4 px-5">
                             <Card.Title className="fs-4 fw-bold mb-4 text-center">Chatap</Card.Title>
-                            <Form>
+                            <Form onSubmit={handleSubmit}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className="mb-2">Email</Form.Label>
                                     <Form.Control id="name" type="text" className="shadow-sm rounded-4" name="name" autoFocus/>
@@ -27,7 +46,8 @@ const Login = () => {
                                     <Form.Label className="mb-2">Password</Form.Label>
                                     <Form.Control id="password" type="password" className="form-control shadow-sm rounded-4" name="password"/>
                                 </Form.Group>
-                                <Button className="btn-blue w-100 rounded-4">Log in</Button>
+                                <Button className="btn-blue w-100 rounded-4" type="submit">Log in</Button>
+                                {err && <div className="w-100 mt-1 text-center text-danger">Something went wrong</div>}
                             </Form>
                         </Card.Body>
                     </Card>
