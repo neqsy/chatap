@@ -1,6 +1,22 @@
 :root {
   background: linear-gradient(rgb(28, 170, 255), rgb(50, 102, 133));
   height: 100%;
+
+  --blue-light: #C5DCEA;
+  --blue-dark: #131C29;
+  --blue: #0279C2;
+  --blue-accent: #48A3B7;
+  --grey-light: #D9D9D9;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
+  margin: 0;
+  padding: 0;
 }
 
 .fa-square-facebook {
@@ -38,4 +54,36 @@
 }
 .fa-user-plus{
   margin-right: 1.5em;
+}
+
+.bg-blue-dark {
+  background-color: var(--blue-dark);
+}
+
+.bg-blue-light {
+  background-color: var(--blue-light);
+}
+
+.bg-blue {
+  background-color: var(--blue);
+}
+
+.bg-grey-light {
+  background-color: var(--grey-light);
+}
+
+.bg-blue-accent {
+  background-color: var(--blue-accent);
+}
+
+.bg-white {
+  background-color: white;
+}
+
+.font-white {
+  color: white;
+}
+
+.font-black {
+  color: black;
 }

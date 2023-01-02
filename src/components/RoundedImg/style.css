@@ -1,0 +1,19 @@
+.rounded-img__container {
+  border-radius: 50%;
+  background-color: var(--grey-light);
+  object-fit: cover;
+}
+
+.rounded-img {
+  max-width: 100%;
+}
+
+.rounded-img__container--small {
+  width: 3rem;
+  height: 3rem;
+}
+
+.rounded-img__container--large {
+  width: 4rem;
+  height: 4rem;
+}

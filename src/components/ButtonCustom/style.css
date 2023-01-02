@@ -1,0 +1,17 @@
+.button-custom {
+  border: none;
+  outline: none;
+  padding: 0.5em;
+}
+
+.button-custom:hover {
+  filter: brightness(115%);
+}
+
+.button-custom--rounded {
+  border-radius: 10px;
+}
+
+.button-custom--squared {
+  border-radius: 5px;
+}
