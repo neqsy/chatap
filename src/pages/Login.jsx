@@ -1,28 +1,34 @@
+import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Card from 'react-bootstrap/Card';
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
 import Form from 'react-bootstrap/Form';
+import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { facebookLogin, formatErrorCode, googleLogin } from "../services/authService";
 
 const Login = () => {
-    const [err, setErr] = useState(false);
+    const [error, setError] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const email = e.target[0].value;
         const password = e.target[1].value;
-
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            navigate("/");
-        } catch (err) {
-            setErr(true);
+        if(!email)
+          setError('E-mail empty');
+        else if(!password)
+          setError('Password empty');
+        else {
+          try {
+              await signInWithEmailAndPassword(auth, email, password);
+              navigate("/");
+          } catch (err) {
+            setError(formatErrorCode(err.code));
+          }
         }
     }
 
@@ -31,8 +37,8 @@ const Login = () => {
             <Row className="justify-content-center">
                 <Col className="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
 
-                    <Button className="btn-white w-100 mt-4 py-2 rounded-4">Log in with Facebook <i className="fa-brands fa-square-facebook"></i></Button>
-                    <Button className="btn-white w-100 my-4 py-2 rounded-4">Log in with Google <i className="fa-brands fa-google"></i></Button>
+                    <Button className="btn-white w-100 mt-4 py-2 rounded-4" onClick={ facebookLogin }>Log in with Facebook <i className="fa-brands fa-square-facebook"></i></Button>
+                    <Button className="btn-white w-100 my-4 py-2 rounded-4" onClick={ googleLogin }>Log in with Google <i className="fa-brands fa-google"></i></Button>
                     
                     <Card className="shadow-lg rounded-4">
                         <Card.Body className="py-4 px-5">
@@ -47,7 +53,7 @@ const Login = () => {
                                     <Form.Control id="password" type="password" className="form-control shadow-sm rounded-4" name="password"/>
                                 </Form.Group>
                                 <Button className="btn-blue w-100 rounded-4" type="submit">Log in</Button>
-                                {err && <div className="w-100 mt-1 text-center text-danger">Something went wrong</div>}
+                                {error && <div className="w-100 mt-1 text-center text-danger">{ error }</div>}
                             </Form>
                         </Card.Body>
                     </Card>
