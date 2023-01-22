@@ -1,4 +1,3 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Card from 'react-bootstrap/Card';
@@ -7,8 +6,7 @@ import Container from "react-bootstrap/Container";
 import Form from 'react-bootstrap/Form';
 import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
-import { facebookLogin, formatErrorCode, googleLogin } from "../services/authService";
+import { authService } from "../services/AuthService";
 
 const Login = () => {
     const [error, setError] = useState(false);
@@ -18,27 +16,41 @@ const Login = () => {
         e.preventDefault();
         const email = e.target[0].value;
         const password = e.target[1].value;
-        if(!email)
-          setError('E-mail empty');
-        else if(!password)
-          setError('Password empty');
-        else {
-          try {
-              await signInWithEmailAndPassword(auth, email, password);
-              navigate("/");
-          } catch (err) {
-            setError(formatErrorCode(err.code));
-          }
+
+        try {
+          await authService.credentialsLogin(email, password);
+          navigate("/");
+        } catch (err) {
+          setError(authService.formatErrorCode(err.code));
         }
     }
 
+    const handleFacebookLogin = async (e) => {
+      e.preventDefault();
+      try {
+        await authService.facebookLogin();
+        navigate("/");
+      } catch (err) {
+        setError(authService.formatErrorCode(err.code));
+      }
+    }
+
+    const handleGoogleLogin = async (e) => {
+      e.preventDefault();
+      try {
+        await authService.googleLogin();
+        navigate("/");
+      } catch (err) {
+        setError(authService.formatErrorCode(err.code));
+      }
+    }
     return (
         <Container className="bg-transparent">
             <Row className="justify-content-center">
                 <Col className="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
 
-                    <Button className="btn-white w-100 mt-4 py-2 rounded-4" onClick={ facebookLogin }>Log in with Facebook <i className="fa-brands fa-square-facebook"></i></Button>
-                    <Button className="btn-white w-100 my-4 py-2 rounded-4" onClick={ googleLogin }>Log in with Google <i className="fa-brands fa-google"></i></Button>
+                    <Button className="btn-white w-100 mt-4 py-2 rounded-4" onClick={ handleFacebookLogin }>Log in with Facebook <i className="fa-brands fa-square-facebook"></i></Button>
+                    <Button className="btn-white w-100 my-4 py-2 rounded-4" onClick={ handleGoogleLogin }>Log in with Google <i className="fa-brands fa-google"></i></Button>
                     
                     <Card className="shadow-lg rounded-4">
                         <Card.Body className="py-4 px-5">

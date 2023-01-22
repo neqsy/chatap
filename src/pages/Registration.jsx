@@ -10,7 +10,7 @@ import Form from 'react-bootstrap/Form';
 import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
 import { auth, db, storage } from "../firebase";
-import { facebookLogin, formatErrorCode, googleLogin } from "../services/authService";
+import { authService } from "../services/AuthService";
 
 const Registration = () => {
     const [error, setError] = useState('');
@@ -55,13 +55,13 @@ const Registration = () => {
                         });
     
                         // create enmpty user chats on firestore
-                        await setDoc(doc(db, "userChats", res.user.uid), {});
+                        // await setDoc(doc(db, "userChats", res.user.uid), {});
     
                         // go to home page
                         navigate("/");
                     } catch (err) {
                         console.log(err);
-                        setError(formatErrorCode(err.code));
+                        setError(authService.formatErrorCode(err.code));
                         setLoading(false);
                     }
                 });
@@ -69,7 +69,7 @@ const Registration = () => {
           }
           catch (err) {
               console.log(err);
-              setError(formatErrorCode(err.code));
+              setError(authService.formatErrorCode(err.code));
               setLoading(false);
           }
         }
@@ -80,8 +80,8 @@ const Registration = () => {
             <Row className="justify-content-center">
                 <Col className="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
 
-                    <Button className="btn-white w-100 mt-4 py-2 rounded-4" onClick={ facebookLogin }>Log in with Facebook <i className="fa-brands fa-square-facebook"></i></Button>
-                    <Button className="btn-white w-100 my-4 py-2 rounded-4" onClick={ googleLogin }>Log in with Google <i className="fa-brands fa-google"></i></Button>
+                    <Button className="btn-white w-100 mt-4 py-2 rounded-4" onClick={ authService.facebookLogin }>Log in with Facebook <i className="fa-brands fa-square-facebook"></i></Button>
+                    <Button className="btn-white w-100 my-4 py-2 rounded-4" onClick={ authService.googleLogin }>Log in with Google <i className="fa-brands fa-google"></i></Button>
                     
                     <Card className="shadow-lg rounded-4">
                         <Card.Body className="py-4 px-5">

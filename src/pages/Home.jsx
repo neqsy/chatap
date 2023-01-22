@@ -1,20 +1,58 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import ButtonCustom from '../components/ButtonCustom/ButtonCustom';
 import { ButtonCustomColor, ButtonCustomType } from '../components/ButtonCustom/ButtonCustomProps';
 import Message from '../components/Message/Message';
 import MessageType from '../components/Message/MessageType';
+import { NewChatPopUp } from '../components/NewChatPopUp/NewChatPopUp';
 import RoundedImg from '../components/RoundedImg/RoundedImg';
 import RoundedImgSize from '../components/RoundedImg/RoundedImgSIze';
 import SearchBar from '../components/SearchBar/SearchBar';
 import TextInfo from '../components/TextInfo/TextInfo';
 import TextInfoType from '../components/TextInfo/TextInfoType';
+import { AuthContext } from '../context/AuthContext';
+import { getSignedInUserId } from '../services/AuthService';
+import { chatService } from '../services/ChatService';
 
 const Home = () => {
+  const authContext = useContext(AuthContext);
+
+  const [isLoading, setIsLoading] = useState(true);
   const [chats, setChats] = useState([]);
   const [activeChat, setActiveChat] = useState([]);
+  const [user, setUser] = useState();
+  const [modalShow, setModalshow] = useState(false);
+
+  const handleModalClose = () => setModalshow(false);
+  const handleModalShow = () => setModalshow(true);
+  const handleOpenChat = (chatId) => {
+    chatService.openChat(chatId).then(data => {
+      setActiveChat(data);
+    })
+  }
+
+  const fetchData = async (fetchFunction) => {
+    try {
+      const data = await fetchFunction();
+      console.log("res",data)
+      return data;
+    } catch(err) {
+      throw err;
+    }
+  }
+
+  useEffect(() => {
+    fetchData(chatService.getAllChats).then(data => 
+    {
+      setChats(data)
+      setIsLoading(false);
+    });
+  }, [])
   
-    return (
+  return (
+  isLoading ? <>Loading...</>:
+    <>
+      <NewChatPopUp modalShow={ modalShow } handleClose={ handleModalClose } />
       <Container className='d-flex flex-column vh-100' fluid>
         <Row>
           <Col xs lg='3' className='bg-blue-dark d-flex align-items-center p-4'>
@@ -27,8 +65,8 @@ const Home = () => {
                 size={ RoundedImgSize.SMALL } 
                 altText={ 'test' } />
               <TextInfo
-                textTop={ 'test top' }
-                textBottom={ 'test bottom' }
+                textTop={ authContext.currentUser.displayName }
+                textBottom={ '' }
                 type={ TextInfoType.USER }
               />
             </Col>
@@ -52,18 +90,22 @@ const Home = () => {
               </Col>
             </Row>
             <Row className='p-4 d-flex flex-grow-1'>
-              <Col className='d-flex align-items-start gap-2'>
-                <RoundedImg 
-                  imgUrl={ 'test' } 
-                  size={ RoundedImgSize.LARGE }  
-                  altText={ 'test' } 
-                />
-                <TextInfo
-                  textTop={ 'Chat name' }
-                  textBottom={ 'last message...' }
-                  type={ TextInfoType.CHAT }
-                />
-              </Col>
+              {chats.docs.map(chat => 
+              <div onClick={ () => handleOpenChat(chat?.data()?.id) }>
+                <Col className='d-flex align-items-start gap-2'>
+                  <RoundedImg 
+                    imgUrl={ 'test' } 
+                    size={ RoundedImgSize.LARGE }  
+                    altText={ 'test' } 
+                  />
+                  <TextInfo
+                    textTop={ chat?.data()?.name }
+                    textBottom={ chat?.data()?.lastMessage }
+                    type={ TextInfoType.CHAT }
+                  />
+                </Col>
+              </div>
+              )} 
             </Row>
             <Row className='d-flex flex-column'>
               <Col>
@@ -71,6 +113,7 @@ const Home = () => {
                   text={ 'Add chat' }
                   type={ ButtonCustomType.SQUARED } 
                   buttonColor={ ButtonCustomColor.BLUE }
+                  onClick={ handleModalShow }
                 />              
               </Col>
             </Row>
@@ -103,7 +146,8 @@ const Home = () => {
           </Col>
         </Row>
       </Container>
-    );
+    </>
+  );
 };
 
 export default Home;
