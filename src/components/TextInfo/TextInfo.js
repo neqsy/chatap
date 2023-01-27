@@ -1,9 +1,9 @@
 import React from 'react';
-import TextInfoType from './TextInfoType';
+import { TextInfoType } from './TextInfoType';
 
-export default function TextInfo({ textTop, textBottom, type }) {
+export default function TextInfo({ textTop, textBottom, type, fontColor }) {
   return (
-    <div className='font-white'>
+    <div className={ fontColor }>
       <h5>{ textTop }</h5>
       {
         type === TextInfoType.USER ? 

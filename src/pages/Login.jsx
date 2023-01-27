@@ -6,7 +6,7 @@ import Container from "react-bootstrap/Container";
 import Form from 'react-bootstrap/Form';
 import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../services/AuthService";
+import { credentialsLogin, facebookLogin, formatErrorCode, googleLogin } from "../services/AuthService";
 
 const Login = () => {
     const [error, setError] = useState(false);
@@ -18,30 +18,30 @@ const Login = () => {
         const password = e.target[1].value;
 
         try {
-          await authService.credentialsLogin(email, password);
+          await credentialsLogin(email, password);
           navigate("/");
         } catch (err) {
-          setError(authService.formatErrorCode(err.code));
+          setError(formatErrorCode(err.code));
         }
     }
 
     const handleFacebookLogin = async (e) => {
       e.preventDefault();
       try {
-        await authService.facebookLogin();
+        await facebookLogin();
         navigate("/");
       } catch (err) {
-        setError(authService.formatErrorCode(err.code));
+        setError(formatErrorCode(err.code));
       }
     }
 
     const handleGoogleLogin = async (e) => {
       e.preventDefault();
       try {
-        await authService.googleLogin();
+        await googleLogin();
         navigate("/");
       } catch (err) {
-        setError(authService.formatErrorCode(err.code));
+        setError(formatErrorCode(err.code));
       }
     }
     return (

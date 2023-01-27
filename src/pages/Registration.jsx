@@ -10,7 +10,8 @@ import Form from 'react-bootstrap/Form';
 import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
 import { auth, db, storage } from "../firebase";
-import { authService } from "../services/AuthService";
+import { facebookLogin, formatErrorCode, googleLogin } from "../services/AuthService";
+import { uploadFileToStorage } from "../services/Helpers";
 
 const Registration = () => {
     const [error, setError] = useState('');
@@ -35,41 +36,37 @@ const Registration = () => {
             const res = await createUserWithEmailAndPassword(auth, email, password);
 
             // create unique image name
-            const storageRef = ref(storage, res.user.uid);
+            await uploadFileToStorage('userImages', res.user.uid, avatar).then(async (downloadURL) => {
+              try {
+                  // update profile
+                  await updateProfile(res.user, {
+                      displayName,
+                      photoURL: downloadURL
+                  });
 
-            await uploadBytesResumable(storageRef, avatar).then(() => {
-                getDownloadURL(storageRef).then(async (downloadURL) => {
-                    try {
-                        // update profile
-                        await updateProfile(res.user, {
-                            displayName,
-                            photoURL: downloadURL
-                        });
-    
-                        // create user on firestore
-                        await setDoc(doc(db, "users", res.user.uid), {
-                            uid: res.user.uid,
-                            displayName,
-                            email,
-                            photoURL: downloadURL
-                        });
-    
-                        // create enmpty user chats on firestore
-                        // await setDoc(doc(db, "userChats", res.user.uid), {});
-    
-                        // go to home page
-                        navigate("/");
-                    } catch (err) {
-                        console.log(err);
-                        setError(authService.formatErrorCode(err.code));
-                        setLoading(false);
-                    }
-                });
-            });
+                  // create user on firestore
+                  await setDoc(doc(db, "users", res.user.uid), {
+                      uid: res.user.uid,
+                      displayName,
+                      email,
+                      photoURL: downloadURL
+                  });
+
+                  // create enmpty user chats on firestore
+                  // await setDoc(doc(db, "userChats", res.user.uid), {});
+
+                  // go to home page
+                  navigate("/");
+              } catch (err) {
+                  console.log(err);
+                  setError(formatErrorCode(err.code));
+                  setLoading(false);
+              }
+          });
           }
           catch (err) {
               console.log(err);
-              setError(authService.formatErrorCode(err.code));
+              setError(formatErrorCode(err.code));
               setLoading(false);
           }
         }
@@ -80,8 +77,8 @@ const Registration = () => {
             <Row className="justify-content-center">
                 <Col className="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
 
-                    <Button className="btn-white w-100 mt-4 py-2 rounded-4" onClick={ authService.facebookLogin }>Log in with Facebook <i className="fa-brands fa-square-facebook"></i></Button>
-                    <Button className="btn-white w-100 my-4 py-2 rounded-4" onClick={ authService.googleLogin }>Log in with Google <i className="fa-brands fa-google"></i></Button>
+                    <Button className="btn-white w-100 mt-4 py-2 rounded-4" onClick={ facebookLogin }>Log in with Facebook <i className="fa-brands fa-square-facebook"></i></Button>
+                    <Button className="btn-white w-100 my-4 py-2 rounded-4" onClick={ googleLogin }>Log in with Google <i className="fa-brands fa-google"></i></Button>
                     
                     <Card className="shadow-lg rounded-4">
                         <Card.Body className="py-4 px-5">

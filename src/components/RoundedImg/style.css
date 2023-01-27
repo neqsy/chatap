@@ -1,11 +1,12 @@
 .rounded-img__container {
-  border-radius: 50%;
   background-color: var(--grey-light);
-  object-fit: cover;
+  border-radius: 50%;
 }
 
 .rounded-img {
   max-width: 100%;
+  border-radius: 50%;
+  object-fit: contain;
 }
 
 .rounded-img__container--small {
