@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { getUserById } from '../../services/ChatService';
 import RoundedImg from '../RoundedImg/RoundedImg';
 import RoundedImgSize from '../RoundedImg/RoundedImgSIze';
 import TextInfo from '../TextInfo/TextInfo';
@@ -7,17 +8,28 @@ import TextInfoType from '../TextInfo/TextInfoType';
 import MessageType from './MessageType';
 import './style.css';
 
-export default function Message({ user, message, type }) {
+export default function Message({ message, type }) {
+  const [user, setUser] = useState({});
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      return await getUserById(message?.sentBy);
+    }
+
+    fetchUser().then((data) => setUser(data));
+  }, [message])
+  
+
   return (
     <Row className={ `d-flex p-2 ${type === MessageType.USERS && 'flex-row-reverse'}` }>
       <Col className='flex-grow-1'>
       </Col>
       <Col className={`d-flex flex-grow-1 gap-1 align-items-center ${type === MessageType.MY && 'flex-row-reverse'}`}>
-        <Row className='d-flex m-4'>
+        <Row className='d-flex m-2'>
           <RoundedImg 
-            imgUrl={ 'test' } 
+            imgUrl={ user?.photoURL } 
             size={ RoundedImgSize.LARGE }  
-            altText={ 'test' } 
+            altText={ user?.displayName } 
           />
         </Row>
         <Row className='flex-grow-1'>

@@ -1,6 +1,5 @@
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Card from 'react-bootstrap/Card';
@@ -9,7 +8,7 @@ import Container from "react-bootstrap/Container";
 import Form from 'react-bootstrap/Form';
 import Row from "react-bootstrap/Row";
 import { useNavigate } from "react-router-dom";
-import { auth, db, storage } from "../firebase";
+import { auth, db } from "../firebase";
 import { facebookLogin, formatErrorCode, googleLogin } from "../services/AuthService";
 import { uploadFileToStorage } from "../services/Helpers";
 

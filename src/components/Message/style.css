@@ -2,6 +2,7 @@
   border-radius: 0 10px 0 0;
   background-color: var(--blue-accent);
   color: white;
+  height: auto;
 }
 
 .message-users {

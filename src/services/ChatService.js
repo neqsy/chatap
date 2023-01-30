@@ -46,6 +46,17 @@ export const getAllChats = async () => {
   //   throw err;
   // }
 }
+export const getUserById = async (userId) => {
+  const docRef = doc(db, "users", userId);
+  try {
+    const doc = await getDoc(docRef);
+    console.log("user", doc.data());
+    return doc;
+    
+  } catch(err) {
+    throw err;
+  }
+}
 
 export const getUserChats = async (userId) => {
   const q = query(collection(db, "chats"), where("userId", "==", userId));

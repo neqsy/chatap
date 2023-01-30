@@ -1,2 +1,8 @@
 .chats-container {
+  height: 100%;
+}
+
+.scroll-accordion {
+  height: 25vh;
+  overflow: scroll;
 }

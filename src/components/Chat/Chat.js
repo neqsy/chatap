@@ -14,9 +14,9 @@ export const Chat = ({ chat, messages, setMessages }) => {
   return (
     <Col>
       { messages.map(message => 
-        <Message 
+        <Message
           message={ message }
-          type={ message?.type === "notification" ? MessageType.NOTIFICATION :  MessageType.MY }
+          type={ message?.type === "notification" ? MessageType.NOTIFICATION : (authContext?.currentUser?.uid === message?.sentBy ? MessageType.MY : MessageType.USERS) }
         />
       )}
     </Col>

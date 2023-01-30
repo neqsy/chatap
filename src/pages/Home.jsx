@@ -1,8 +1,7 @@
 import { addDoc, collection, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import { Accordion, Col, Container, Row } from 'react-bootstrap';
-import ButtonCustom from '../components/ButtonCustom/ButtonCustom';
-import { ButtonCustomColor, ButtonCustomType } from '../components/ButtonCustom/ButtonCustomProps';
+import Button from 'react-bootstrap/Button';
 import { Chat } from '../components/Chat/Chat';
 import { ChatBar } from '../components/ChatBar/ChatBar';
 import { JoinChatPopUp } from '../components/JoinChatPopUp/JoinChatPopUp';
@@ -14,6 +13,7 @@ import RoundedImgSize from '../components/RoundedImg/RoundedImgSIze';
 import SearchBar from '../components/SearchBar/SearchBar';
 import TextInfo from '../components/TextInfo/TextInfo';
 import { TextInfoColor, TextInfoType } from '../components/TextInfo/TextInfoType';
+import { APP_NAME } from '../constants';
 import { AuthContext } from '../context/AuthContext';
 import { db } from '../firebase';
 import { logOut } from '../services/AuthService';
@@ -101,114 +101,130 @@ const Home = () => {
     <Loading />
     :
     <>
-      <NewChatPopUp modalShow={ modalShowAdd } handleClose={ () => setModalshowAddd(false) } />
-      <JoinChatPopUp modalShow={ modalShowJoin } handleClose={ () => setModalshowJoin(false) } chats={ chats }></JoinChatPopUp>
+      <NewChatPopUp 
+        modalShow={ modalShowAdd } 
+        handleClose={ () => setModalshowAddd(false) } 
+      />
+      <JoinChatPopUp 
+        modalShow={ modalShowJoin } 
+        handleClose={ () => setModalshowJoin(false) } 
+        chats={ chats } 
+      />
       <Container className='d-flex flex-column vh-100' fluid>
-        <Row>
+        <Row style={{ height: '10vh' }}>
           <Col xs lg='3' className='bg-blue-dark d-flex align-items-center p-4'>
             <Col xs lg='4'>
-              <h2 className='font-white'><strong>chatap</strong></h2>
+              <h2 className='font-white font-weight-bold'>
+                { APP_NAME }
+              </h2>
             </Col>
-            <Col className='d-flex align-items-center gap-2'>
+            <Col className='d-flex align-items-center justify-content-end gap-2'>
               <RoundedImg 
-                imgUrl={ authContext.currentUser.photoURL } 
+                imgUrl={ authContext?.currentUser?.photoURL } 
                 size={ RoundedImgSize.SMALL } 
-                altText={ 'test' } />
+                altText={ 'User Avatar' } />
               <TextInfo
-                textTop={ authContext.currentUser.displayName }
+                textTop={ authContext?.currentUser?.displayName }
                 textBottom={ '' }
                 type={ TextInfoType.USER }
                 fontColor={ TextInfoColor.WHITE }
               />
             </Col>
-            <Col xs lg='2'>
-              <ButtonCustom
-                text={ 'Logout' }
-                type={ ButtonCustomType.SQUARED } 
-                buttonColor={ ButtonCustomColor.GREY }
+            <Col xs lg='2' className='d-flex align-items-end justify-content-end'>
+              <Button
+                variant='secondary'
                 onClick={ logOut }
-              />
+              >
+                Logout
+              </Button>
             </Col>
           </Col>
           <Col className='bg-blue d-flex align-items-center p-4'>
-            <h2 className='font-white'>{ activeChat?.data?.name }</h2>
+            <h2 className='font-white'>
+              { activeChat?.data?.name }
+            </h2>
           </Col>
-        </Row>
-        <Row className='d-flex flex-grow-1'>
-          <Col xs lg='3' className='bg-blue d-flex flex-column p-4'>
-            <Row className='h-60'>
+        </Row >
+        <Row style={{ height: '90vh' }}>
+          <Col 
+            xs 
+            lg='3' 
+            className='bg-blue d-flex flex-column p-4'
+          >
+            <Row>
               <Col>
                 <SearchBar />
               </Col>
             </Row>
-            <Row className='pt-4 d-flex flex-grow-1'>
+            <Row className='pt-4 d-flex'>
               <Col className='chats-container'>
-              <Accordion defaultActiveKey={['0']} alwaysOpen>
-                <Accordion.Item eventKey="0">
-                  <Accordion.Header>All Chats</Accordion.Header>
+              <Accordion
+                defaultActiveKey={['0', '1']} 
+                alwaysOpen
+              >
+                <Accordion.Item eventKey='0'>
+                  <Accordion.Header>
+                    All chats
+                  </Accordion.Header>
                   <Accordion.Body>
-                    {availableChats?.map(chat =>
-                      <ChatBar key={ chat.id } chat={ chat } activeChat={ activeChat } setActiveChat={ setActiveChat } />
-                    )} 
+                    <div className='scroll-accordion'>
+                      {availableChats?.map(chat =>
+                        <ChatBar 
+                          key={ chat.id } 
+                          chat={ chat } 
+                          activeChat={ activeChat } 
+                          setActiveChat={ setActiveChat } 
+                        />
+                      )}
+                    </div>
                   </Accordion.Body>
                 </Accordion.Item>
-                <Accordion.Item eventKey="1">
-                  <Accordion.Header>My Chats</Accordion.Header>
+                <Accordion.Item eventKey='1'>
+                  <Accordion.Header>
+                    My chats
+                  </Accordion.Header>
                   <Accordion.Body>
-                    {userChats?.map(chat =>
-                      <ChatBar key={ chat.id } chat={ chat } activeChat={ activeChat } setActiveChat={ setActiveChat } />
-                    )} 
+                    <div className='scroll-accordion'>
+                      {userChats?.map(chat =>
+                        <ChatBar 
+                          key={ chat.id } 
+                          chat={ chat } 
+                          activeChat={ activeChat } 
+                          setActiveChat={ setActiveChat } 
+                        />
+                      )} 
+                    </div>
                   </Accordion.Body>
-                </Accordion.Item>
+                </Accordion.Item>              
               </Accordion>
               </Col>
             </Row>
-            <Row className='d-flex flex-row'>
-              <Col>
-                <ButtonCustom
-                  text={ 'Add chat' }
-                  type={ ButtonCustomType.SQUARED } 
-                  buttonColor={ ButtonCustomColor.BLUE }
+            <Row className='h-100'>
+              <Col className='d-flex align-items-end justify-content-between'>
+                <Button
+                  variant='info'
+                  className='bg-blue-accent border-0 font-white'
                   onClick={ () => setModalshowAddd(true) }
-                />              
-              </Col>
-              <Col>
-                <ButtonCustom
-                  text={ 'Join chat' }
-                  type={ ButtonCustomType.SQUARED } 
-                  buttonColor={ ButtonCustomColor.BLUE }
+                >
+                  Add chat
+                </Button>             
+                <Button
+                  variant='info'
+                  className='bg-blue-accent border-0 font-white '
                   onClick={ () => setModalshowJoin(true) }
-                />              
+                >
+                  Join chat
+                </Button>              
               </Col>
             </Row>
           </Col>
           <Col className='bg-blue-light d-flex flex-column'>
             <Row className='d-flex flex-grow-1'>
               <Chat chat={ activeChat } messages={ chatMessages } />
-              {/* <Col> */}
-                {/* <Message 
-                  message={ 'test message my' }
-                  type={ MessageType.MY }
-                />
-                <Message 
-                  message={ 'test message users' }
-                  type={ MessageType.USERS }
-                /> */}
-              {/* </Col> */}
             </Row>
-            <MessageInput handleSendMessage={ handleSendMessage }/>
-            {/* <Row className='bg-white d-flex p-5 align-items-center'>
-              <Col className='d-flex flex-grow-1'>
-                There will be the input for message
-              </Col>
-              <Col className='d-flex justify-content-end'>
-                <ButtonCustom
-                  text={ 'Send message' }
-                  type={ ButtonCustomType.ROUNDED } 
-                  buttonColor={ ButtonCustomColor.BLUE }
-                />  
-              </Col>
-            </Row> */}
+            <Row className='bg-white d-flex p-4 align-items-center'>
+              <MessageInput handleSendMessage={ handleSendMessage }/>
+            </Row>
           </Col>
         </Row>
       </Container>
