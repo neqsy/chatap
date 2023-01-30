@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Col } from 'react-bootstrap';
+import { Col, Container } from 'react-bootstrap';
 import { openChat } from '../../services/ChatService';
 import RoundedImg from '../RoundedImg/RoundedImg';
 import RoundedImgSize from '../RoundedImg/RoundedImgSIze';
@@ -21,7 +21,7 @@ export const ChatBar = ({ chat, activeChat, setActiveChat, openChat }) => {
   
   return (
     <div
-      className={ `chat-bar ${ isActive ? 'active' : '' }` }
+      className={ `rounded p-2 chat-bar ${ isActive ? 'active' : '' }` }
       key={ chat?.id }
       onClick={ handleSelectChat }
     >

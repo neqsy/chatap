@@ -1,13 +1,15 @@
 import { signOut } from 'firebase/auth';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Accordion, Col, Container, Row } from 'react-bootstrap';
 import ButtonCustom from '../components/ButtonCustom/ButtonCustom';
 import { ButtonCustomColor, ButtonCustomType } from '../components/ButtonCustom/ButtonCustomProps';
+import { Chat } from '../components/Chat/Chat';
 import { ChatBar } from '../components/ChatBar/ChatBar';
 import { JoinChatPopUp } from '../components/JoinChatPopUp/JoinChatPopUp';
 import Message from '../components/Message/Message';
 import MessageType from '../components/Message/MessageType';
+import { MessageInput } from '../components/MessageInput/MessageInput';
 import { NewChatPopUp } from '../components/NewChatPopUp/NewChatPopUp';
 import RoundedImg from '../components/RoundedImg/RoundedImg';
 import RoundedImgSize from '../components/RoundedImg/RoundedImgSIze';
@@ -18,6 +20,7 @@ import { AuthContext } from '../context/AuthContext';
 import { auth, db } from '../firebase';
 import { logOut } from '../services/AuthService';
 import { openChat } from '../services/ChatService';
+import { uploadFileToStorage } from '../services/Helpers';
 import './style.css';
 
 const Home = () => {
@@ -28,6 +31,7 @@ const Home = () => {
   const [chats, setChats] = useState([]);
   const [userChats, setUserChats] = useState([]);
   const [activeChat, setActiveChat] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [user, setUser] = useState();
   const [modalShowAdd, setModalshowAddd] = useState(false);
   const [modalShowJoin, setModalshowJoin] = useState(false);
@@ -53,11 +57,12 @@ const Home = () => {
 
   useEffect(() => {
     if(authContext.currentUser.uid) {
+      console.log("currusr", authContext.currentUser)
     const
       getAvailableChatsQuery = query(collection(db, "chats"), where("userId", "!=", authContext.currentUser.uid ), where("members", "array-contains", authContext.currentUser.uid)),
       getAllChatsQuery = query(collection(db, "chats"), where("userId", "!=", authContext.currentUser.uid )),
       getUserChatsQuery = query(collection(db, "chats"), where("userId", "==", authContext.currentUser.uid ));
-    
+      
     onSnapshot(getAvailableChatsQuery, (querySnapshot) => {
       setAvailableChats(querySnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })));
     });
@@ -74,6 +79,48 @@ const Home = () => {
   }
   }, [authContext]);
   
+  useEffect(() => {
+    if(activeChat.id) {
+      const messagesRef = doc(db, "chatMessages", activeChat?.id);
+      const getChatMessages = query(collection(messagesRef, "messages"));
+
+      onSnapshot(getChatMessages, (querySnapshot) => {
+        setChatMessages(querySnapshot.docs.map(doc => (doc.data() )));
+      });      
+    }
+  }, [activeChat])
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    const messageText = e.target[0].value;
+    const messagePhoto = e.target[1].file;
+    const messagesRef = collection(db, "chatMessages", activeChat?.id, "messages");
+
+    console.log("SENDING")
+    try {
+      const res = await addDoc(messagesRef, {
+        sentAt: new Date(),
+        sentBy: authContext?.currentUser?.uid,
+        text: messageText,
+      })
+      if(messagePhoto) {
+      await uploadFileToStorage(`chatImageMessages`, res?.data?.uid, messagePhoto).then(async (downloadURL) => { 
+        await updateDoc(res, {
+          photoURL: downloadURL
+        });
+    
+      });
+    }
+    } catch(err) {
+      console.log(err);
+    }
+   
+  }
+
+  useEffect(() => {
+    console.log("msmgs", chatMessages)
+  }, [chatMessages])
+
   return (
   isLoading ? <>Loading...</>:
     <>
@@ -87,7 +134,7 @@ const Home = () => {
             </Col>
             <Col className='d-flex align-items-center gap-2'>
               <RoundedImg 
-                imgUrl={ 'test' } 
+                imgUrl={ authContext.currentUser.photoURL } 
                 size={ RoundedImgSize.SMALL } 
                 altText={ 'test' } />
               <TextInfo
@@ -107,7 +154,7 @@ const Home = () => {
             </Col>
           </Col>
           <Col className='bg-blue d-flex align-items-center p-4'>
-            <h2 className='font-white'>{ 'current chat' }</h2>
+            <h2 className='font-white'>{ activeChat?.data?.name }</h2>
           </Col>
         </Row>
         <Row className='d-flex flex-grow-1'>
@@ -160,18 +207,20 @@ const Home = () => {
           </Col>
           <Col className='bg-blue-light d-flex flex-column'>
             <Row className='d-flex flex-grow-1'>
-              <Col>
-                <Message 
+              <Chat chat={ activeChat } messages={ chatMessages } />
+              {/* <Col> */}
+                {/* <Message 
                   message={ 'test message my' }
                   type={ MessageType.MY }
                 />
                 <Message 
                   message={ 'test message users' }
                   type={ MessageType.USERS }
-                />
-              </Col>
+                /> */}
+              {/* </Col> */}
             </Row>
-            <Row className='bg-white d-flex p-5 align-items-center'>
+            <MessageInput handleSendMessage={ handleSendMessage }/>
+            {/* <Row className='bg-white d-flex p-5 align-items-center'>
               <Col className='d-flex flex-grow-1'>
                 There will be the input for message
               </Col>
@@ -182,7 +231,7 @@ const Home = () => {
                   buttonColor={ ButtonCustomColor.BLUE }
                 />  
               </Col>
-            </Row>
+            </Row> */}
           </Col>
         </Row>
       </Container>

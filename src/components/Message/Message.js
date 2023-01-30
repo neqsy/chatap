@@ -22,16 +22,22 @@ export default function Message({ user, message, type }) {
         </Row>
         <Row className='flex-grow-1'>
         {
-          type === MessageType.MY ?
+          type === MessageType.MY &&
           <div className='message-my p-2'>
-            <p>{ message }</p>
-          </div>
-          :
-          <div className='message-users p-2'>
-            <p>{ message }</p>
+            <p>{ message?.text }</p>
           </div>
         }
-        <small className='p-2'>Today 12:49 PM</small>
+        { type === MessageType.USERS &&
+          <div className='message-users p-2'>
+            <p>{ message?.text }</p>
+          </div>
+        }
+        { type === MessageType.NOTIFICATION &&
+          <div className='message-notification p-2'>
+            <p>{ message?.text }</p>
+          </div>
+        }
+        <small className='p-2'>{ message?.date }</small>
         </Row>
       </Col>
     </Row>

@@ -1,6 +1,7 @@
 const MessageType = {
   MY: 'my',
-  USERS: 'users'
+  USERS: 'users',
+  NOTIFICATION: 'notification'
 };
 
 export default MessageType;

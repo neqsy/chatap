@@ -9,3 +9,8 @@
   background-color: white;
   color: black;
 }
+
+.message-notification {
+  background-color: var(--blue-light);
+  color: var(--blue-dark); 
+}
