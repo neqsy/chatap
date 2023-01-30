@@ -1,14 +1,12 @@
-import { signOut } from 'firebase/auth';
-import { addDoc, collection, doc, onSnapshot, query, setDoc, updateDoc, where } from 'firebase/firestore';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { addDoc, collection, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import React, { useContext, useEffect, useState } from 'react';
 import { Accordion, Col, Container, Row } from 'react-bootstrap';
 import ButtonCustom from '../components/ButtonCustom/ButtonCustom';
 import { ButtonCustomColor, ButtonCustomType } from '../components/ButtonCustom/ButtonCustomProps';
 import { Chat } from '../components/Chat/Chat';
 import { ChatBar } from '../components/ChatBar/ChatBar';
 import { JoinChatPopUp } from '../components/JoinChatPopUp/JoinChatPopUp';
-import Message from '../components/Message/Message';
-import MessageType from '../components/Message/MessageType';
+import { Loading } from '../components/Loading/Loading';
 import { MessageInput } from '../components/MessageInput/MessageInput';
 import { NewChatPopUp } from '../components/NewChatPopUp/NewChatPopUp';
 import RoundedImg from '../components/RoundedImg/RoundedImg';
@@ -17,9 +15,8 @@ import SearchBar from '../components/SearchBar/SearchBar';
 import TextInfo from '../components/TextInfo/TextInfo';
 import { TextInfoColor, TextInfoType } from '../components/TextInfo/TextInfoType';
 import { AuthContext } from '../context/AuthContext';
-import { auth, db } from '../firebase';
+import { db } from '../firebase';
 import { logOut } from '../services/AuthService';
-import { openChat } from '../services/ChatService';
 import { uploadFileToStorage } from '../services/Helpers';
 import './style.css';
 
@@ -32,28 +29,10 @@ const Home = () => {
   const [userChats, setUserChats] = useState([]);
   const [activeChat, setActiveChat] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
-  const [user, setUser] = useState();
   const [modalShowAdd, setModalshowAddd] = useState(false);
   const [modalShowJoin, setModalshowJoin] = useState(false);
 
   // Handlers //
-  // const handleModalClose = () => setModalshow(false);
-  // const handleModalShow = () => setModalshow(true);
-  // const handleOpenChat = (chatId) => {
-  //   openChat(chatId).then(data => {
-  //     setActiveChat(data);
-  //   })
-  // }
-
-  const fetchData = async (fetchFunction) => {
-    try {
-      const data = await fetchFunction();
-      console.log("res",data)
-      return data;
-    } catch(err) {
-      throw err;
-    }
-  }
 
   useEffect(() => {
     if(authContext.currentUser.uid) {
@@ -114,15 +93,13 @@ const Home = () => {
     } catch(err) {
       console.log(err);
     }
-   
   }
 
-  useEffect(() => {
-    console.log("msmgs", chatMessages)
-  }, [chatMessages])
-
   return (
-  isLoading ? <>Loading...</>:
+    isLoading 
+    ? 
+    <Loading />
+    :
     <>
       <NewChatPopUp modalShow={ modalShowAdd } handleClose={ () => setModalshowAddd(false) } />
       <JoinChatPopUp modalShow={ modalShowJoin } handleClose={ () => setModalshowJoin(false) } chats={ chats }></JoinChatPopUp>
