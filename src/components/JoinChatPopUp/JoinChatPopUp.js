@@ -1,4 +1,4 @@
-import { arrayUnion, doc, FieldValue, updateDoc } from 'firebase/firestore';
+import { addDoc, arrayUnion, collection, doc, FieldValue, updateDoc } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Container, Modal } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
@@ -23,6 +23,12 @@ export const JoinChatPopUp = ({ modalShow, handleClose, chats }) => {
       const res = await updateDoc(docRef, {
         members: arrayUnion(authContext?.currentUser?.uid)
       });
+
+      await addDoc(collection(db, "chatMessages", docRef.id, "messages"), {
+        sentAt: new Date(),
+        text: `${authContext?.currentUser?.displayName} joined chat!`,
+        type: 'notification'
+      });
       console.log(res, "user added")
     } catch(err) {
       console.log(err);
@@ -45,9 +51,11 @@ export const JoinChatPopUp = ({ modalShow, handleClose, chats }) => {
         <Modal.Title>Join chat</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <div className='scroll-accordion'>
         {availableChats?.map(chat =>
           <ChatBar key={ chat.id } chat={ chat } activeChat={ activeChat } setActiveChat={ setActiveChat } />
-        )} 
+        )}
+        </div>
         <Form onSubmit={ handleJoinChat }>
           <Button variant="secondary" onClick={ handleClose }>
             Cancel

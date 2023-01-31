@@ -1,3 +1,9 @@
+.message {
+  word-wrap: break-word;
+  word-break: break-word;
+  width: 100%;
+}
+
 .message-my {
   border-radius: 0 10px 0 0;
   background-color: var(--blue-accent);
@@ -14,4 +20,5 @@
 .message-notification {
   background-color: var(--blue-light);
   color: var(--blue-dark); 
+  text-align: center;
 }

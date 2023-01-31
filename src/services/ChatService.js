@@ -11,7 +11,7 @@ export const addNewChat = async (chatName, chatCreatorId, chatCreationDate) => {
       members: [] 
     });
 
-    const newCollectionRef = await addDoc(collection(db, "chatMessages", chatRef.id, "messages"), {
+    await addDoc(collection(db, "chatMessages", chatRef.id, "messages"), {
       sentAt: new Date(),
       text: 'Chat created!',
       type: 'notification'

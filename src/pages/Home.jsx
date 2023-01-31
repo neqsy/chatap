@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import React, { useContext, useEffect, useState } from 'react';
 import { Accordion, Col, Container, Row } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
@@ -61,7 +61,7 @@ const Home = () => {
   useEffect(() => {
     if(activeChat.id) {
       const messagesRef = doc(db, "chatMessages", activeChat?.id);
-      const getChatMessages = query(collection(messagesRef, "messages"));
+      const getChatMessages = query(collection(messagesRef, "messages"), orderBy("sentAt", "asc"));
 
       onSnapshot(getChatMessages, (querySnapshot) => {
         setChatMessages(querySnapshot.docs.map(doc => (doc.data() )));
@@ -93,6 +93,7 @@ const Home = () => {
     } catch(err) {
       console.log(err);
     }
+    e.target[0].value = '';
   }
 
   return (
@@ -118,7 +119,7 @@ const Home = () => {
                 { APP_NAME }
               </h2>
             </Col>
-            <Col className='d-flex align-items-center justify-content-end gap-2'>
+            <Col className='d-flex align-items-center justify-content-center gap-2'>
               <RoundedImg 
                 imgUrl={ authContext?.currentUser?.photoURL } 
                 size={ RoundedImgSize.SMALL } 
@@ -218,11 +219,15 @@ const Home = () => {
               </Col>
             </Row>
           </Col>
-          <Col className='bg-blue-light d-flex flex-column'>
+          <Col
+            xs 
+            lg='9' 
+            className='bg-blue-light d-flex flex-column'
+          >
             <Row className='d-flex flex-grow-1'>
               <Chat chat={ activeChat } messages={ chatMessages } />
             </Row>
-            <Row className='bg-white d-flex p-4 align-items-center'>
+            <Row className='bg-white d-flex align-items-center'>
               <MessageInput handleSendMessage={ handleSendMessage }/>
             </Row>
           </Col>
