@@ -1,5 +1,6 @@
-import { FacebookAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { FacebookAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
+import { doc, updateDoc } from 'firebase/firestore';
+import { auth, db } from "../firebase";
 
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
@@ -25,8 +26,15 @@ export const credentialsLogin = async (email, password) => {
   
 export const googleLogin = async  () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    console.log(result.user);
+    const res = await signInWithPopup(auth, googleProvider);
+    try {
+      console.log("Prl", res.user.photoURL)
+    await updateDoc(doc(db, "users", res.user.uid), {
+      photoURL: res.user.photoURL
+  });
+  } catch(err) {
+    throw err;
+  }
   }
   catch(err) {
     throw err;
