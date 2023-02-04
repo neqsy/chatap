@@ -19,7 +19,7 @@ import { TextInfoColor, TextInfoType } from "../components/TextInfo/TextInfoType
 import { APP_NAME } from "../constants";
 import { AuthContext } from "../context/AuthContext";
 import { logOut } from "../services/AuthService";
-import { prepareGetChatsQueries, prepareGetMessagesQuery, sendMessage, startListening } from "../services/ChatService";
+import { leaveChat, prepareGetChatsQueries, prepareGetMessagesQuery, sendMessage, startListening } from "../services/ChatService";
 import "./style.css";
 
 const Home = () => {
@@ -49,26 +49,7 @@ const Home = () => {
   // Effects //
   useEffect(() => {
     if (authContext.currentUser.uid) {
-      const queries = prepareGetChatsQueries(authContext.currentUser.uid);
-
-      onSnapshot(queries.getJoined, (querySnapshot) => {
-        setJoinedChats(
-          querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
-        );
-      });
-
-      onSnapshot(queries.getOthers, (querySnapshot) => {
-        setOthersChats(
-          querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
-        );
-      });
-
-      onSnapshot(queries.getUser, (querySnapshot) => {
-        setUserChats(
-          querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
-        );
-      });
-      
+      getChats();
       setIsLoading(false);
     }
   }, []);
@@ -79,6 +60,7 @@ const Home = () => {
   }, [joinedChats])
   
   useEffect(() => {
+    setIsLoadingChat(true);
     if (activeChat.id)
       onSnapshot(prepareGetMessagesQuery(activeChat.id), (querySnapshot) => {
         setChatMessages(querySnapshot.docs.map((doc) => doc.data()));
@@ -91,7 +73,28 @@ const Home = () => {
     setTextMessage(transcript);
   }, [transcript]);
 
-  // Helpers //
+  const getChats = () => {
+    const queries = prepareGetChatsQueries(authContext.currentUser.uid);
+
+    onSnapshot(queries.getJoined, (querySnapshot) => {
+      setJoinedChats(
+        querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
+      );
+    });
+
+    onSnapshot(queries.getOthers, (querySnapshot) => {
+      setOthersChats(
+        querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
+      );
+    });
+
+    onSnapshot(queries.getUser, (querySnapshot) => {
+      setUserChats(
+        querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
+      );
+    });
+  }
+
   const resetMessageInput = () => {
     if(transcript) 
       resetTranscript();
@@ -108,6 +111,11 @@ const Home = () => {
     resetMessageInput();
   };
 
+  const handleLeaveChat = async () => {
+    await leaveChat(activeChat?.id, authContext?.currentUser)
+    .then(() => getChats());
+  }
+
   return isLoading ? (
     <Loading />
   ) : (
@@ -122,7 +130,7 @@ const Home = () => {
         othersChats={ othersChats }
       />
       <Container className="d-flex flex-column vh-100" fluid>
-        <Row className="header-row">
+        <Row className="header-row bg-blue">
           <Col xs lg="3" className="bg-blue-dark d-flex align-items-center p-4">
             <Col xs lg="4">
               <h2 className="font-white font-weight-bold">{ APP_NAME }</h2>
@@ -145,13 +153,20 @@ const Home = () => {
               lg="2"
               className="d-flex align-items-end justify-content-end"
             >
-              <Button variant="secondary" onClick={logOut}>
+              <Button variant="secondary" onClick={ logOut }>
                 Logout
               </Button>
             </Col>
           </Col>
-          <Col className="bg-blue d-flex align-items-center p-4">
+          <Col className="d-flex align-items-center p-4">
             <h2 className="font-white">{ activeChat?.data?.name }</h2>
+          </Col>
+          <Col className="d-flex align-items-center justify-content-end p-4">
+            { activeChat?.data?.userId !== authContext?.currentUser?.uid &&
+              <Button variant="warning" onClick={ handleLeaveChat }>
+                Leave chat
+              </Button>
+            }
           </Col>
         </Row>
         <Row className="content-row">

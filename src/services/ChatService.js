@@ -1,4 +1,4 @@
-import { addDoc, arrayUnion, collection, doc, getDoc, orderBy, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, orderBy, query, updateDoc, where } from "firebase/firestore";
 import SpeechRecognition from "react-speech-recognition";
 import MessageType from "../components/Message/MessageType";
 import { CHAT_NOTIFICATIONS } from "../constants";
@@ -43,13 +43,31 @@ export const joinChat = async (chatId, user) => {
 
     await sendMessage(
       chatId,
-      user.displayName + CHAT_NOTIFICATIONS.USER_JOIN,
+      user.displayName + " " + CHAT_NOTIFICATIONS.USER_JOIN,
       MessageType.NOTIFICATION
     );
   } catch (err) {
     throw err;
   }
 };
+
+export const leaveChat = async (chatId, user) => {
+  try {
+    const docRef = doc(db, "chats", chatId);
+
+    await updateDoc(docRef, {
+      members: arrayRemove(user.uid)
+    });
+
+    await sendMessage(
+      chatId,
+      user.displayName + " " + CHAT_NOTIFICATIONS.USER_LEFT,
+      MessageType.NOTIFICATION
+    );
+  } catch (err) {
+    throw err;
+  }
+}
 
 export const prepareGetChatsQueries = (userId) => {
   const getJoined = query(
