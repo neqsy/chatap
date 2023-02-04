@@ -10,7 +10,7 @@ const firebaseConfig = {
   projectId: "tpf-chatap",
   storageBucket: "tpf-chatap.appspot.com",
   messagingSenderId: "349643226035",
-  appId: "1:349643226035:web:6a500f1a364b4f5aa369c6"
+  appId: "1:349643226035:web:6a500f1a364b4f5aa369c6",
 };
 
 // Initialize Firebase

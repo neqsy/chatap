@@ -1,8 +1,15 @@
-.chats-container {
-  height: 100%;
+/* Containers */
+
+.header-row {
+  height: 10vh;
+}
+
+.content-row {
+  height: 90vh;
 }
 
 .scroll-accordion {
   height: 25vh;
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }

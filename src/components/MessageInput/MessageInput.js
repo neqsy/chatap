@@ -9,9 +9,8 @@ export const MessageInput = ({
   listening,
   speechRecognitionStart,
   speechRecognitionStop,
-  resetTranscript
+  resetTranscript,
 }) => {
-
   const handleSetMessage = (e) => {
     resetTranscript();
     setTextMessage(e.target.value);
@@ -29,21 +28,17 @@ export const MessageInput = ({
           className="shadow-sm rounded-4"
           name="name"
           placeholder="..."
-          value={textMessage}
-          onChange={handleSetMessage}
+          value={ textMessage }
+          onChange={ handleSetMessage }
         />
         <Button
-          variant={
-            listening
-              ? 'success'
-              : 'info'
-          }
-          onTouchStart={startListening}
-          onMouseDown={startListening}
-          onTouchEnd={speechRecognitionStart}
-          onMouseUp={speechRecognitionStop}
+          variant={ listening ? "success" : "info" }
+          onTouchStart={ startListening }
+          onMouseDown={ startListening }
+          onTouchEnd={ speechRecognitionStart }
+          onMouseUp={ speechRecognitionStop }
         >
-          <i class="fa-solid fa-microphone"></i>
+          <i className="fa-solid fa-microphone"></i>
         </Button>
         <Button type="submit" variant="primary">
           Send

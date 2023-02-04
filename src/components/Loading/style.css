@@ -1,23 +1,23 @@
-.loader{
+.page-loader{
   width: 100px;
   height: 75px;
   margin: 0 auto;
-  background: #fff;
+  background: white;
   position: relative;
   border-radius: 100%;
 }
-.loader:before {
+.page-loader:before {
   content: '';
   position: absolute;
   box-sizing: border-box;
   border: 15px solid transparent;
-  border-top: 25px solid #fff;
+  border-top: 25px solid white;
   transform: rotate(45deg);
   top: 50px;
   left: -15px;
 }
 
-.loader:after {
+.page-loader:after {
   content: '';
   width: 12px;
   height: 12px;
@@ -43,5 +43,30 @@
   100% {
     background-color: var(--blue-accent);
     box-shadow: 20px 0 var(--blue), -20px 0 var(--blue-accent);
+  }
+}
+
+.chat-loader {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--blue);
+  box-shadow: 32px 0 var(--blue), -32px 0 var(--blue);
+  position: relative;
+  animation: flash-chat  0.5s ease-out infinite alternate;
+}
+
+@keyframes flash-chat {
+  0% {
+    background-color: var(--blue-accent);
+    box-shadow: 32px 0 var(--blue-accent), -32px 0 var(--blue);
+  }
+  50% {
+    background-color: var(--blue);
+    box-shadow: 32px 0 var(--blue-accent), -32px 0 var(--blue-accent);
+  }
+  100% {
+    background-color: var(--blue-accent);
+    box-shadow: 32px 0 var(--blue), -32px 0 var(--blue-accent);
   }
 }

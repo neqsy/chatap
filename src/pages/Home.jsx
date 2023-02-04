@@ -1,53 +1,31 @@
-import {
-  addDoc,
-  collection,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  updateDoc,
-  where
-} from "firebase/firestore";
+import { onSnapshot } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { Accordion, Col, Container, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-import SpeechRecognition, {
-  useSpeechRecognition
-} from "react-speech-recognition";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import { Chat } from "../components/Chat/Chat";
 import { ChatBar } from "../components/ChatBar/ChatBar";
 import { JoinChatPopUp } from "../components/JoinChatPopUp/JoinChatPopUp";
 import { Loading } from "../components/Loading/Loading";
+import { LoadingChat } from '../components/Loading/LoadingChat';
+import MessageType from "../components/Message/MessageType";
 import { MessageInput } from "../components/MessageInput/MessageInput";
 import { NewChatPopUp } from "../components/NewChatPopUp/NewChatPopUp";
 import RoundedImg from "../components/RoundedImg/RoundedImg";
 import RoundedImgSize from "../components/RoundedImg/RoundedImgSIze";
 import SearchBar from "../components/SearchBar/SearchBar";
 import TextInfo from "../components/TextInfo/TextInfo";
-import {
-  TextInfoColor,
-  TextInfoType
-} from "../components/TextInfo/TextInfoType";
+import { TextInfoColor, TextInfoType } from "../components/TextInfo/TextInfoType";
 import { APP_NAME } from "../constants";
 import { AuthContext } from "../context/AuthContext";
-import { db } from "../firebase";
 import { logOut } from "../services/AuthService";
-import { uploadFileToStorage } from "../services/Helpers";
+import { prepareGetChatsQueries, prepareGetMessagesQuery, sendMessage, startListening } from "../services/ChatService";
 import "./style.css";
 
 const Home = () => {
   const authContext = useContext(AuthContext);
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [availableChats, setAvailableChats] = useState([]);
-  const [chats, setChats] = useState([]);
-  const [userChats, setUserChats] = useState([]);
-  const [activeChat, setActiveChat] = useState([]);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [modalShowAdd, setModalshowAddd] = useState(false);
-  const [modalShowJoin, setModalshowJoin] = useState(false);
-  const [textMessage, setTextMessage] = useState("");
-
+  
+  // Speech Recognition //
   const {
     transcript,
     listening,
@@ -55,103 +33,79 @@ const Home = () => {
     browserSupportsSpeechRecognition,
     isMicrophoneAvailable,
   } = useSpeechRecognition();
-  const startListening = () => {
+  
+  // States //
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingChat, setIsLoadingChat] = useState(true);
+  const [joinedChats, setJoinedChats] = useState([]);
+  const [userChats, setUserChats] = useState([]);
+  const [othersChats, setOthersChats] = useState([]);
+  const [activeChat, setActiveChat] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [textMessage, setTextMessage] = useState("");
+  const [modalShowAdd, setModalshowAddd] = useState(false);
+  const [modalShowJoin, setModalshowJoin] = useState(false);
 
-    SpeechRecognition.startListening({ continuous: true })};
-  // Handlers //
-
+  // Effects //
   useEffect(() => {
     if (authContext.currentUser.uid) {
-      console.log("currusr", authContext.currentUser);
-      const getAvailableChatsQuery = query(
-          collection(db, "chats"),
-          where("userId", "!=", authContext.currentUser.uid),
-          where("members", "array-contains", authContext.currentUser.uid)
-        ),
-        getAllChatsQuery = query(
-          collection(db, "chats"),
-          where("userId", "!=", authContext.currentUser.uid)
-        ),
-        getUserChatsQuery = query(
-          collection(db, "chats"),
-          where("userId", "==", authContext.currentUser.uid)
-        );
+      const queries = prepareGetChatsQueries(authContext.currentUser.uid);
 
-      onSnapshot(getAvailableChatsQuery, (querySnapshot) => {
-        setAvailableChats(
+      onSnapshot(queries.getJoined, (querySnapshot) => {
+        setJoinedChats(
           querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
         );
       });
 
-      onSnapshot(getAllChatsQuery, (querySnapshot) => {
-        setChats(
+      onSnapshot(queries.getOthers, (querySnapshot) => {
+        setOthersChats(
           querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
         );
       });
 
-      onSnapshot(getUserChatsQuery, (querySnapshot) => {
+      onSnapshot(queries.getUser, (querySnapshot) => {
         setUserChats(
           querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
         );
       });
-
+      
       setIsLoading(false);
     }
-  }, [authContext]);
+  }, []);
 
   useEffect(() => {
-    if (activeChat.id) {
-      const messagesRef = doc(db, "chatMessages", activeChat?.id);
-      const getChatMessages = query(
-        collection(messagesRef, "messages"),
-        orderBy("sentAt", "asc")
-      );
-
-      onSnapshot(getChatMessages, (querySnapshot) => {
+    if(joinedChats.length)
+      setActiveChat(joinedChats[0]);
+  }, [joinedChats])
+  
+  useEffect(() => {
+    if (activeChat.id)
+      onSnapshot(prepareGetMessagesQuery(activeChat.id), (querySnapshot) => {
         setChatMessages(querySnapshot.docs.map((doc) => doc.data()));
       });
-    }
+
+      setIsLoadingChat(false);
   }, [activeChat]);
 
   useEffect(() => {
-    console.log("trans", transcript);
     setTextMessage(transcript);
   }, [transcript]);
 
+  // Helpers //
+  const resetMessageInput = () => {
+    if(transcript) 
+      resetTranscript();
+    setTextMessage("");
+  }
+
+  // Handlers //
   const handleSendMessage = async (e) => {
     e.preventDefault();
     const messageText = e.target[0].value;
-    const messagePhoto = e.target[1].file;
-    const messagesRef = collection(
-      db,
-      "chatMessages",
-      activeChat?.id,
-      "messages"
-    );
 
-    console.log("SENDING");
-    try {
-      const res = await addDoc(messagesRef, {
-        sentAt: new Date(),
-        sentBy: authContext?.currentUser?.uid,
-        text: messageText,
-      });
-      if (messagePhoto) {
-        await uploadFileToStorage(
-          `chatImageMessages`,
-          res?.data?.uid,
-          messagePhoto
-        ).then(async (downloadURL) => {
-          await updateDoc(res, {
-            photoURL: downloadURL,
-          });
-        });
-      }
-    } catch (err) {
-      console.log(err);
-    }
-    if (transcript) resetTranscript();
-    setTextMessage("");
+    const messageDocRef = await sendMessage(activeChat?.id, messageText, MessageType.MESSAGE, authContext?.currentUser?.uid);
+
+    resetMessageInput();
   };
 
   return isLoading ? (
@@ -159,31 +113,31 @@ const Home = () => {
   ) : (
     <>
       <NewChatPopUp
-        modalShow={modalShowAdd}
-        handleClose={() => setModalshowAddd(false)}
+        modalShow={ modalShowAdd }
+        handleClose={ () => setModalshowAddd(false) }
       />
       <JoinChatPopUp
-        modalShow={modalShowJoin}
-        handleClose={() => setModalshowJoin(false)}
-        chats={chats}
+        modalShow={ modalShowJoin }
+        handleClose={ () => setModalshowJoin(false) }
+        othersChats={ othersChats }
       />
       <Container className="d-flex flex-column vh-100" fluid>
-        <Row style={{ height: "10vh" }}>
+        <Row className="header-row">
           <Col xs lg="3" className="bg-blue-dark d-flex align-items-center p-4">
             <Col xs lg="4">
-              <h2 className="font-white font-weight-bold">{APP_NAME}</h2>
+              <h2 className="font-white font-weight-bold">{ APP_NAME }</h2>
             </Col>
             <Col className="d-flex align-items-center justify-content-center gap-2">
               <RoundedImg
-                imgUrl={authContext?.currentUser?.photoURL}
-                size={RoundedImgSize.SMALL}
-                altText={"User Avatar"}
+                imgUrl={ authContext?.currentUser?.photoURL }
+                size={ RoundedImgSize.SMALL }
+                altText={ "User Avatar" }
               />
               <TextInfo
-                textTop={authContext?.currentUser?.displayName}
-                textBottom={""}
-                type={TextInfoType.USER}
-                fontColor={TextInfoColor.WHITE}
+                textTop={ authContext?.currentUser?.displayName }
+                textBottom={ "" }
+                type={ TextInfoType.USER }
+                fontColor={ TextInfoColor.WHITE }
               />
             </Col>
             <Col
@@ -197,10 +151,10 @@ const Home = () => {
             </Col>
           </Col>
           <Col className="bg-blue d-flex align-items-center p-4">
-            <h2 className="font-white">{activeChat?.data?.name}</h2>
+            <h2 className="font-white">{ activeChat?.data?.name }</h2>
           </Col>
         </Row>
-        <Row style={{ height: "90vh" }}>
+        <Row className="content-row">
           <Col xs lg="3" className="bg-blue d-flex flex-column p-4">
             <Row>
               <Col>
@@ -208,20 +162,20 @@ const Home = () => {
               </Col>
             </Row>
             <Row className="pt-4 d-flex">
-              <Col className="chats-container">
+              <Col className="h-100">
                 <Accordion defaultActiveKey={["0", "1"]} alwaysOpen>
                   <Accordion.Item eventKey="0">
                     <Accordion.Header>All chats</Accordion.Header>
                     <Accordion.Body>
                       <div className="scroll-accordion">
-                        {availableChats?.map((chat) => (
+                        { joinedChats?.map((chat) => (
                           <ChatBar
-                            key={chat.id}
-                            chat={chat}
-                            activeChat={activeChat}
-                            setActiveChat={setActiveChat}
+                            key={ chat.id }
+                            chat={ chat }
+                            activeChat={ activeChat }
+                            setActiveChat={ setActiveChat }
                           />
-                        ))}
+                        )) }
                       </div>
                     </Accordion.Body>
                   </Accordion.Item>
@@ -229,14 +183,14 @@ const Home = () => {
                     <Accordion.Header>My chats</Accordion.Header>
                     <Accordion.Body>
                       <div className="scroll-accordion">
-                        {userChats?.map((chat) => (
+                        { userChats?.map((chat) => (
                           <ChatBar
-                            key={chat.id}
-                            chat={chat}
-                            activeChat={activeChat}
-                            setActiveChat={setActiveChat}
+                            key={ chat.id }
+                            chat={ chat }
+                            activeChat={ activeChat }
+                            setActiveChat={ setActiveChat }
                           />
-                        ))}
+                        )) }
                       </div>
                     </Accordion.Body>
                   </Accordion.Item>
@@ -248,14 +202,14 @@ const Home = () => {
                 <Button
                   variant="info"
                   className="bg-blue-accent border-0 font-white"
-                  onClick={() => setModalshowAddd(true)}
+                  onClick={ () => setModalshowAddd(true) }
                 >
                   Add chat
                 </Button>
                 <Button
                   variant="info"
                   className="bg-blue-accent border-0 font-white "
-                  onClick={() => setModalshowJoin(true)}
+                  onClick={ () => setModalshowJoin(true) }
                 >
                   Join chat
                 </Button>
@@ -264,7 +218,10 @@ const Home = () => {
           </Col>
           <Col xs lg="9" className="bg-blue-light d-flex flex-column">
             <Row className="d-flex flex-grow-1">
-              <Chat chat={activeChat} messages={chatMessages} />
+              { isLoadingChat
+                ? <LoadingChat />
+                : <Chat chat={ activeChat } messages={ chatMessages } />
+              }
             </Row>
             <Row className="bg-white d-flex align-items-center">
               <MessageInput
