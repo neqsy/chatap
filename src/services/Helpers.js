@@ -31,3 +31,7 @@ export const getMessageDate = (date) => {
       messageDate.getMonth() + 1
     ).padStart(2, "0")}.${messageDate.getFullYear()}`;
 };
+
+export const searchChats = (keyword, chats) => {
+  return chats.filter((chat) => chat.data.name.includes(keyword));
+}

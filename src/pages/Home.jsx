@@ -20,6 +20,7 @@ import { APP_NAME } from "../constants";
 import { AuthContext } from "../context/AuthContext";
 import { logOut } from "../services/AuthService";
 import { leaveChat, prepareGetChatsQueries, prepareGetMessagesQuery, sendMessage, startListening } from "../services/ChatService";
+import { searchChats } from "../services/Helpers";
 import "./style.css";
 
 const Home = () => {
@@ -38,13 +39,16 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingChat, setIsLoadingChat] = useState(true);
   const [joinedChats, setJoinedChats] = useState([]);
+  const [filteredJoinedChats, setfilteredJoinedChats] = useState([]);
   const [userChats, setUserChats] = useState([]);
+  const [filteredUserChats, setfilteredUserChats] = useState([]);
   const [othersChats, setOthersChats] = useState([]);
   const [activeChat, setActiveChat] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
   const [textMessage, setTextMessage] = useState("");
   const [modalShowAdd, setModalshowAddd] = useState(false);
   const [modalShowJoin, setModalshowJoin] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   // Effects //
   useEffect(() => {
@@ -72,6 +76,13 @@ const Home = () => {
   useEffect(() => {
     setTextMessage(transcript);
   }, [transcript]);
+
+  useEffect(() => {
+    if(searchKeyword.length && joinedChats.length && userChats.length) {
+      setfilteredJoinedChats(searchChats(searchKeyword, joinedChats));
+      setfilteredUserChats(searchChats(searchKeyword, userChats));
+    }
+  }, [searchKeyword]);
 
   const getChats = () => {
     const queries = prepareGetChatsQueries(authContext.currentUser.uid);
@@ -173,7 +184,7 @@ const Home = () => {
           <Col xs lg="3" className="bg-blue d-flex flex-column p-4">
             <Row>
               <Col>
-                <SearchBar />
+                <SearchBar searchKeyword = { searchKeyword } setSearchKeyword={ setSearchKeyword } />
               </Col>
             </Row>
             <Row className="pt-4 d-flex">
@@ -183,7 +194,7 @@ const Home = () => {
                     <Accordion.Header>All chats</Accordion.Header>
                     <Accordion.Body>
                       <div className="scroll-accordion">
-                        { joinedChats?.map((chat) => (
+                        { (searchKeyword.length ? filteredJoinedChats : joinedChats)?.map((chat) => (
                           <ChatBar
                             key={ chat.id }
                             chat={ chat }
@@ -198,7 +209,7 @@ const Home = () => {
                     <Accordion.Header>My chats</Accordion.Header>
                     <Accordion.Body>
                       <div className="scroll-accordion">
-                        { userChats?.map((chat) => (
+                        { (searchKeyword.length ? filteredUserChats : filteredUserChats)?.map((chat) => (
                           <ChatBar
                             key={ chat.id }
                             chat={ chat }
@@ -240,14 +251,16 @@ const Home = () => {
             </Row>
             <Row className="bg-white d-flex align-items-center">
               <MessageInput
-                resetTranscript={resetTranscript}
-                textMessage={textMessage}
-                startListening={startListening}
-                setTextMessage={setTextMessage}
-                handleSendMessage={handleSendMessage}
-                listening={listening}
-                speechRecognitionStart={SpeechRecognition.startListening}
-                speechRecognitionStop={SpeechRecognition.stopListening}
+                resetTranscript={ resetTranscript }
+                textMessage={ textMessage }
+                startListening={ startListening }
+                setTextMessage={ setTextMessage }
+                handleSendMessage={ handleSendMessage }
+                browserSupportsSpeechRecognition={ browserSupportsSpeechRecognition }
+                isMicrophoneAvailable={ isMicrophoneAvailable }
+                listening={ listening }
+                speechRecognitionStart={ SpeechRecognition.startListening }
+                speechRecognitionStop={ SpeechRecognition.stopListening }
               />
             </Row>
           </Col>

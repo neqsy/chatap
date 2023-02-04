@@ -6,6 +6,8 @@ export const MessageInput = ({
   textMessage,
   setTextMessage,
   handleSendMessage,
+  browserSupportsSpeechRecognition,
+  isMicrophoneAvailable,
   listening,
   speechRecognitionStart,
   speechRecognitionStop,
@@ -32,6 +34,7 @@ export const MessageInput = ({
           onChange={ handleSetMessage }
         />
         <Button
+          disabled={ browserSupportsSpeechRecognition || isMicrophoneAvailable ? true : false }
           variant={ listening ? "success" : "info" }
           onTouchStart={ startListening }
           onMouseDown={ startListening }
