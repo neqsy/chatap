@@ -118,7 +118,10 @@ const Home = () => {
 
   const handleLeaveChat = async () => {
     await leaveChat(activeChat?.id, authContext?.currentUser)
-    .then(() => getChats());
+    .then(() => {
+      getChats();
+      setActiveChat(joinedChats[0]);
+    });
   }
 
   return isLoading ? (
