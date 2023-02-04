@@ -7,7 +7,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { joinChat } from "../../services/ChatService";
 import { ChatBar } from "../ChatBar/ChatBar";
 
-export const JoinChatPopUp = ({ modalShow, handleClose, othersChats }) => {
+export const JoinChatPopUp = ({ modalShow, handleClose, othersChats, setActiveChat }) => {
   const authContext = useContext(AuthContext);
 
   const [error, setError] = useState("");
@@ -18,7 +18,8 @@ export const JoinChatPopUp = ({ modalShow, handleClose, othersChats }) => {
     e.preventDefault();
 
     try {
-      await joinChat(selectedChat?.id, authContext.currentUser);
+      await joinChat(selectedChat?.id, authContext.currentUser)
+      .then(() => setActiveChat(selectedChat));
     } catch (error) {
       setError(error);
     }

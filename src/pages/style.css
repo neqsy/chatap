@@ -1,11 +1,7 @@
 /* Containers */
 
-.header-row {
-  height: 10vh;
-}
-
-.content-row {
-  height: 90vh;
+.content-container {
+  height: 100vh;
 }
 
 .scroll-accordion {

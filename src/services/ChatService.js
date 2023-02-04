@@ -97,7 +97,7 @@ export const sendMessage = async (chatId, messageText, type, userId) => {
   const chatRef = doc(db, "chats", chatId);
 
   try {
-    await addDoc(messagesRef, {
+    const message = await addDoc(messagesRef, {
       sentAt: new Date(),
       sentBy: userId ? userId : "system",
       text: messageText,
@@ -107,6 +107,8 @@ export const sendMessage = async (chatId, messageText, type, userId) => {
     await updateDoc(chatRef, {
       lastMessage: messageText,
     });
+
+    return message;
   } catch (err) {
     throw err;
   }

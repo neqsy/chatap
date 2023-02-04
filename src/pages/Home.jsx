@@ -57,11 +57,6 @@ const Home = () => {
       setIsLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    if(joinedChats.length)
-      setActiveChat(joinedChats[0]);
-  }, [joinedChats])
   
   useEffect(() => {
     setIsLoadingChat(true);
@@ -86,7 +81,6 @@ const Home = () => {
 
   const getChats = () => {
     const queries = prepareGetChatsQueries(authContext.currentUser.uid);
-
     onSnapshot(queries.getJoined, (querySnapshot) => {
       setJoinedChats(
         querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
@@ -139,35 +133,39 @@ const Home = () => {
         modalShow={ modalShowJoin }
         handleClose={ () => setModalshowJoin(false) }
         othersChats={ othersChats }
+        setActiveChat={ setActiveChat }
       />
-      <Container className="d-flex flex-column vh-100" fluid>
+      <Container className="d-flex flex-column content-container" fluid>
         <Row className="header-row bg-blue">
-          <Col xs lg="3" className="bg-blue-dark d-flex align-items-center p-4">
-            <Col xs lg="4">
-              <h2 className="font-white font-weight-bold">{ APP_NAME }</h2>
-            </Col>
-            <Col className="d-flex align-items-center justify-content-center gap-2">
-              <RoundedImg
-                imgUrl={ authContext?.currentUser?.photoURL }
-                size={ RoundedImgSize.SMALL }
-                altText={ "User Avatar" }
-              />
-              <TextInfo
-                textTop={ authContext?.currentUser?.displayName }
-                textBottom={ "" }
-                type={ TextInfoType.USER }
-                fontColor={ TextInfoColor.WHITE }
-              />
-            </Col>
-            <Col
-              xs
-              lg="2"
-              className="d-flex align-items-end justify-content-end"
-            >
-              <Button variant="secondary" onClick={ logOut }>
-                Logout
-              </Button>
-            </Col>
+          <Col xs="12" sm="6" lg="3" className="bg-blue-dark p-4">
+            <Row>
+              <Col xs lg="12" xl="3" className="d-flex align-items-center">
+                <h3 className="h3 font-white font-weight-bold">{ APP_NAME }</h3>
+              </Col>
+              <Col xs lg="8" xl="6" className="d-flex align-items-center justify-content-start gap-2">
+                <RoundedImg
+                  imgUrl={ authContext?.currentUser?.photoURL }
+                  size={ RoundedImgSize.SMALL }
+                  altText={ "User Avatar" }
+                />
+                <TextInfo
+                  textTop={ authContext?.currentUser?.displayName }
+                  textBottom={ "" }
+                  type={ TextInfoType.USER }
+                  fontColor={ TextInfoColor.WHITE }
+                />
+              </Col>
+              <Col
+                xs
+                lg="4"
+                xl="3"
+                className="d-flex align-items-center justify-content-end"
+              >
+                <Button variant="secondary" onClick={ logOut }>
+                  Logout
+                </Button>
+              </Col>
+            </Row>
           </Col>
           <Col className="d-flex align-items-center p-4">
             <h2 className="font-white">{ activeChat?.data?.name }</h2>
@@ -209,7 +207,7 @@ const Home = () => {
                     <Accordion.Header>My chats</Accordion.Header>
                     <Accordion.Body>
                       <div className="scroll-accordion">
-                        { (searchKeyword.length ? filteredUserChats : filteredUserChats)?.map((chat) => (
+                        { (searchKeyword.length ? filteredUserChats : userChats)?.map((chat) => (
                           <ChatBar
                             key={ chat.id }
                             chat={ chat }
