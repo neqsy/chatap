@@ -1,6 +1,24 @@
-# Getting Started with Create React App
+# Chatap
+## Category
+Communication
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
+Chatap is a web-based application for communication among team members of a project in our organization through sending text messages, photos, or documents. A user account is required to use the application, which can be created through a standard form or through existing accounts on Google or Facebook.
+
+## Purpose
+The purpose of this project is to facilitate communication on a project level, allowing our company to rely on a single platform for communication instead of third-party messaging services, enhancing the security and privacy of our data.
+
+## Technologies
+React, Firebase, HTML, CSS, JavaScript, Bootstrap
+
+## Prototype
+[Figma Prototype](https://www.figma.com/file/bFdhAlHkwKN9Jkn5il5gMP/chatap?node-id=0%3A1&t=KhHuNJpHI2FNI7r9-1)
+
+## App sample views
+
+![Login page](app_images/login.png "Login page")
+![Registration page](app_images/registration.png "Registration page")
+![Home page](app_images/home.png "Home page")
 
 ## Available Scripts
 
