@@ -2,13 +2,11 @@ import { onSnapshot } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { Accordion, Col, Container, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import { Chat } from "../components/Chat/Chat";
 import { ChatBar } from "../components/ChatBar/ChatBar";
 import { JoinChatPopUp } from "../components/JoinChatPopUp/JoinChatPopUp";
 import { Loading } from "../components/Loading/Loading";
 import { LoadingChat } from '../components/Loading/LoadingChat';
-import MessageType from "../components/Message/MessageType";
 import { MessageInput } from "../components/MessageInput/MessageInput";
 import { NewChatPopUp } from "../components/NewChatPopUp/NewChatPopUp";
 import RoundedImg from "../components/RoundedImg/RoundedImg";
@@ -17,24 +15,17 @@ import SearchBar from "../components/SearchBar/SearchBar";
 import TextInfo from "../components/TextInfo/TextInfo";
 import { TextInfoColor, TextInfoType } from "../components/TextInfo/TextInfoType";
 import { APP_NAME } from "../constants";
+import { ActiveChatContext } from '../context/ActiveChatContext';
 import { AuthContext } from "../context/AuthContext";
 import { logOut } from "../services/AuthService";
-import { leaveChat, prepareGetChatsQueries, prepareGetMessagesQuery, sendMessage, startListening } from "../services/ChatService";
+import { leaveChat, prepareGetChatsQueries, prepareGetMessagesQuery } from "../services/ChatService";
 import { searchChats } from "../services/Helpers";
 import "./style.css";
 
 const Home = () => {
   const authContext = useContext(AuthContext);
-  
-  // Speech Recognition //
-  const {
-    transcript,
-    listening,
-    resetTranscript,
-    browserSupportsSpeechRecognition,
-    isMicrophoneAvailable,
-  } = useSpeechRecognition();
-  
+  const activeChatContext = useContext(ActiveChatContext);
+
   // States //
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingChat, setIsLoadingChat] = useState(true);
@@ -43,9 +34,7 @@ const Home = () => {
   const [userChats, setUserChats] = useState([]);
   const [filteredUserChats, setfilteredUserChats] = useState([]);
   const [othersChats, setOthersChats] = useState([]);
-  const [activeChat, setActiveChat] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
-  const [textMessage, setTextMessage] = useState("");
   const [modalShowAdd, setModalshowAddd] = useState(false);
   const [modalShowJoin, setModalshowJoin] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -60,17 +49,13 @@ const Home = () => {
   
   useEffect(() => {
     setIsLoadingChat(true);
-    if (activeChat.id)
-      onSnapshot(prepareGetMessagesQuery(activeChat.id), (querySnapshot) => {
+    if (activeChatContext.activeChat.id)
+      onSnapshot(prepareGetMessagesQuery(activeChatContext.activeChat.id), (querySnapshot) => {
         setChatMessages(querySnapshot.docs.map((doc) => doc.data()));
       });
 
       setIsLoadingChat(false);
-  }, [activeChat]);
-
-  useEffect(() => {
-    setTextMessage(transcript);
-  }, [transcript]);
+  }, [activeChatContext.activeChat]);
 
   useEffect(() => {
     if(searchKeyword.length && joinedChats.length && userChats.length) {
@@ -100,27 +85,13 @@ const Home = () => {
     });
   }
 
-  const resetMessageInput = () => {
-    if(transcript) 
-      resetTranscript();
-    setTextMessage("");
-  }
-
   // Handlers //
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    const messageText = e.target[0].value;
-
-    const messageDocRef = await sendMessage(activeChat?.id, messageText, MessageType.MESSAGE, authContext?.currentUser?.uid);
-
-    resetMessageInput();
-  };
 
   const handleLeaveChat = async () => {
-    await leaveChat(activeChat?.id, authContext?.currentUser)
+    await leaveChat(activeChatContext.activeChat?.id, authContext?.currentUser)
     .then(() => {
       getChats();
-      setActiveChat(joinedChats[0]);
+      activeChatContext.setActiveChat(joinedChats[0]);
     });
   }
 
@@ -136,7 +107,6 @@ const Home = () => {
         modalShow={ modalShowJoin }
         handleClose={ () => setModalshowJoin(false) }
         othersChats={ othersChats }
-        setActiveChat={ setActiveChat }
       />
       <Container className="d-flex flex-column content-container" fluid>
         <Row className="header-row bg-blue">
@@ -171,10 +141,10 @@ const Home = () => {
             </Row>
           </Col>
           <Col className="d-flex align-items-center p-4">
-            <h2 className="font-white">{ activeChat?.data?.name }</h2>
+            <h2 className="font-white">{ activeChatContext.activeChat?.data?.name }</h2>
           </Col>
           <Col className="d-flex align-items-center justify-content-end p-4">
-            { activeChat?.data?.userId !== authContext?.currentUser?.uid &&
+            { activeChatContext.activeChat?.data?.userId !== authContext?.currentUser?.uid &&
               <Button variant="warning" onClick={ handleLeaveChat }>
                 Leave chat
               </Button>
@@ -199,8 +169,6 @@ const Home = () => {
                           <ChatBar
                             key={ chat.id }
                             chat={ chat }
-                            activeChat={ activeChat }
-                            setActiveChat={ setActiveChat }
                           />
                         )) }
                       </div>
@@ -214,8 +182,6 @@ const Home = () => {
                           <ChatBar
                             key={ chat.id }
                             chat={ chat }
-                            activeChat={ activeChat }
-                            setActiveChat={ setActiveChat }
                           />
                         )) }
                       </div>
@@ -247,22 +213,11 @@ const Home = () => {
             <Row className="d-flex flex-grow-1">
               { isLoadingChat
                 ? <LoadingChat />
-                : <Chat chat={ activeChat } messages={ chatMessages } />
+                : <Chat messages={ chatMessages } />
               }
             </Row>
             <Row className="bg-white d-flex align-items-center">
-              <MessageInput
-                resetTranscript={ resetTranscript }
-                textMessage={ textMessage }
-                startListening={ startListening }
-                setTextMessage={ setTextMessage }
-                handleSendMessage={ handleSendMessage }
-                browserSupportsSpeechRecognition={ browserSupportsSpeechRecognition }
-                isMicrophoneAvailable={ isMicrophoneAvailable }
-                listening={ listening }
-                speechRecognitionStart={ SpeechRecognition.startListening }
-                speechRecognitionStop={ SpeechRecognition.stopListening }
-              />
+              <MessageInput />
             </Row>
           </Col>
         </Row>

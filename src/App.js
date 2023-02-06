@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { ActiveChatContextProvider } from "./context/ActiveChatContext";
 import { AuthContext } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -23,7 +24,9 @@ function App() {
             index
             element={
               <ProtectedRoute>
-                <Home />
+                <ActiveChatContextProvider>
+                  <Home />  
+                </ActiveChatContextProvider>
               </ProtectedRoute>
             }
           />

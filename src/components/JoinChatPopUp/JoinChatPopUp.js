@@ -3,12 +3,14 @@ import { Alert, Button, Modal } from "react-bootstrap";
 import Col from 'react-bootstrap/Col';
 import Form from "react-bootstrap/Form";
 import Row from 'react-bootstrap/Row';
+import { ActiveChatContext } from "../../context/ActiveChatContext";
 import { AuthContext } from "../../context/AuthContext";
 import { joinChat } from "../../services/ChatService";
 import { ChatBar } from "../ChatBar/ChatBar";
 
-export const JoinChatPopUp = ({ modalShow, handleClose, othersChats, setActiveChat }) => {
+export const JoinChatPopUp = ({ modalShow, handleClose, othersChats }) => {
   const authContext = useContext(AuthContext);
+  const activeChatContext = useContext(ActiveChatContext);
 
   const [error, setError] = useState("");
   const [availableChats, setAvailableChats] = useState([]);
@@ -19,7 +21,7 @@ export const JoinChatPopUp = ({ modalShow, handleClose, othersChats, setActiveCh
 
     try {
       await joinChat(selectedChat?.id, authContext.currentUser)
-      .then(() => setActiveChat(selectedChat));
+      .then(() => activeChatContext.setActiveChat(selectedChat));
     } catch (error) {
       setError(error);
     }

@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Col } from "react-bootstrap";
+import { ActiveChatContext } from "../../context/ActiveChatContext";
 import RoundedImg from "../RoundedImg/RoundedImg";
 import RoundedImgSize from "../RoundedImg/RoundedImgSIze";
 import TextInfo from "../TextInfo/TextInfo";
 import { TextInfoColor, TextInfoType } from "../TextInfo/TextInfoType";
 import "./style.css";
 
-export const ChatBar = ({ chat, activeChat, setActiveChat }) => {
+export const ChatBar = ({ chat }) => {
+  const activeChatContext = useContext(ActiveChatContext);
+
   const [isActive, setIsActive] = useState(false);
 
   const handleSelectChat = (e) => {
-    setActiveChat(chat);
+    activeChatContext.setActiveChat(chat);
   };
 
   useEffect(() => {
-    activeChat?.id === chat?.id ? setIsActive(true) : setIsActive(false);
-  }, [activeChat]);
+    activeChatContext.activeChat?.id === chat?.id ? setIsActive(true) : setIsActive(false);
+  }, [activeChatContext.activeChat]);
 
   return (
     <div
