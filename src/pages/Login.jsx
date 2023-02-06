@@ -5,16 +5,20 @@ import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { credentialsLogin, facebookLogin, googleLogin } from "../services/AuthService";
 import { formatErrorCode } from "../services/Helpers";
 
 const Login = () => {
   const [error, setError] = useState(false);
+  
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
+
+    setError("");
+    
     const email = e.target[0].value;
     const password = e.target[1].value;
 
@@ -22,7 +26,11 @@ const Login = () => {
       await credentialsLogin(email, password);
       navigate("/");
     } catch (err) {
-      setError(formatErrorCode(err.code));
+      console.log(err.message);
+      if (err.message === "E-mail empty" || err.message === "Password empty")
+        setError(err.message);
+      else
+        setError(formatErrorCode(err.code));
     }
   };
 
@@ -46,7 +54,6 @@ const Login = () => {
     }
   };
 
-  
   return (
     <Container className="bg-transparent">
       <Row className="justify-content-center">
@@ -70,7 +77,7 @@ const Login = () => {
               <Card.Title className="fs-4 fw-bold mb-4 text-center">
                 Chatap
               </Card.Title>
-              <Form onSubmit={ handleSubmit }>
+              <Form onSubmit={ handleEmailLogin }>
                 <Form.Group className="mb-3">
                   <Form.Label className="mb-2">Email</Form.Label>
                   <Form.Control
@@ -104,9 +111,9 @@ const Login = () => {
 
           <p className="text-center text-white mt-3">
             Don't have an account?{" "}
-            <a href="/registration" className="link-info">
+            <Link to="/registration" className="link-info">
               Sign up
-            </a>
+            </Link>
           </p>
         </Col>
       </Row>
