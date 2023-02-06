@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.2.3",
     "enzyme": "^3.11.0",
@@ -41,6 +40,9 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/react": "^13.4.0",
+    "jasmine": "^4.5.0",
+    "jest": "^27.5.1",
     "react-router-dom": "^6.5.0"
   }
 }
