@@ -7,18 +7,28 @@ import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { auth, db } from "../firebase";
+import { DEFAULT_AVATAR_URL } from "../constants";
 import { facebookLogin, googleLogin } from "../services/AuthService";
 import { formatErrorCode, uploadFileToStorage } from "../services/Helpers";
 
 const Registration = () => {
+  const [isImageSelected, setIsImageSelected] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+
+  const handleImageChange = async (e) => {
+    setIsImageSelected(true);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setError("");
+
     const displayName = e.target[0].value;
     const email = e.target[1].value;
     const password = e.target[2].value;
@@ -27,40 +37,35 @@ const Registration = () => {
     if (!displayName) setError("Display name empty");
     else if (!password) setError("Password empty");
     else {
-      setLoading(true);
       try {
-        // create user
+        // create user in firebase authentication
         const res = await createUserWithEmailAndPassword(auth, email, password);
 
-        // create unique image name
-        await uploadFileToStorage("userImages", res.user.uid, avatar).then(
-          async (downloadURL) => {
-            try {
-              // update profile
-              await updateProfile(res.user, {
-                displayName,
-                photoURL: downloadURL,
-              });
+        // save user avatar or use default
+        setLoading(true);
+        var downloadURL;
+        if (avatar) {
+          downloadURL = await uploadFileToStorage("userImages", res.user.uid, avatar);
+        } else {
+          downloadURL = DEFAULT_AVATAR_URL;
+        }
 
-              // create user on firestore
-              await setDoc(doc(db, "users", res.user.uid), {
-                uid: res.user.uid,
-                displayName,
-                email,
-                photoURL: downloadURL,
-              });
+        // update user avatar in firebase authentication
+        await updateProfile(res.user, {
+          displayName,
+          photoURL: downloadURL,
+        });
 
-              // create enmpty user chats on firestore
-              // await setDoc(doc(db, "userChats", res.user.uid), {});
+        // create user on firestore database
+        await setDoc(doc(db, "users", res.user.uid), {
+          uid: res.user.uid,
+          displayName,
+          email,
+          photoURL: downloadURL,
+        });
 
-              // go to home page
-              navigate("/");
-            } catch (err) {
-              setError(formatErrorCode(err.code));
-              setLoading(false);
-            }
-          }
-        );
+        // go to home page
+        navigate("/");
       } catch (err) {
         setError(formatErrorCode(err.code));
         setLoading(false);
@@ -125,10 +130,12 @@ const Registration = () => {
                     id="avatar"
                     style={{ display: "none" }}
                     type="file"
+                    accept="image/png, image/gif, image/jpeg"
+                    onChange={handleImageChange}
                   ></Form.Control>
                   <Form.Label
                     htmlFor="avatar"
-                    className="text-center w-100 mt-4 py-2 border border-primary rounded-4"
+                    className={"text-center w-100 mt-4 py-2 border rounded-4 " + (isImageSelected ? "border-success" : "border-primary")}
                   >
                     <i className="fa-solid fa-user-plus"></i>Add avatar
                   </Form.Label>
@@ -152,9 +159,9 @@ const Registration = () => {
 
           <p className="text-center text-white mt-3">
             You do have an account?{" "}
-            <a href="/" className="link-info">
+            <Link to="/" className="link-info">
               Log in
-            </a>
+            </Link>
           </p>
         </Col>
       </Row>
