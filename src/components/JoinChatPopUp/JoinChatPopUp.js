@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 import { ActiveChatContext } from "../../context/ActiveChatContext";
 import { AuthContext } from "../../context/AuthContext";
 import { joinChat } from "../../services/ChatService";
-import { ChatBar } from "../ChatBar/ChatBar";
+import { ChatBarJoin } from "../ChatBar/ChatBarJoin";
 
 export const JoinChatPopUp = ({ modalShow, handleClose, othersChats }) => {
   const authContext = useContext(AuthContext);
@@ -45,11 +45,11 @@ export const JoinChatPopUp = ({ modalShow, handleClose, othersChats }) => {
       <Modal.Body>
         <div className="scroll-accordion">
           { availableChats?.map((chat) => (
-            <ChatBar
+            <ChatBarJoin
               key={ chat.id }
               chat={ chat }
-              activeChat={ selectedChat }
-              setActiveChat={ setSelectedChat }
+              selectedChat={ selectedChat }
+              setSelectedChat={ setSelectedChat }
             />
           )) }
         </div>

@@ -12,7 +12,7 @@ export const MessageInput = () => {
 
   const [textMessage, setTextMessage] = useState("");
 
-    // Speech Recognition //
+  // Speech Recognition //
   const {
     transcript,
     listening,

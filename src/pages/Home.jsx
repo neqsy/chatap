@@ -1,5 +1,5 @@
 import { onSnapshot } from "firebase/firestore";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { Accordion, Col, Container, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import { Chat } from "../components/Chat/Chat";
@@ -38,18 +38,24 @@ const Home = () => {
   const [modalShowAdd, setModalshowAddd] = useState(false);
   const [modalShowJoin, setModalshowJoin] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [emptyChat, setEmptyChat] = useState(true);
+  const [lastLeftChat, setLastLeftChat] = useState("");
 
   // Effects //
   useEffect(() => {
     if (authContext.currentUser.uid) {
       getChats();
-      setIsLoading(false);
     }
   }, []);
   
   useEffect(() => {
+    if (joinedChats.length && !activeChatContext.activeChat.id)
+      activeChatContext.setActiveChat(joinedChats[0]);
+  }, [joinedChats, activeChatContext.activeChat]);
+
+  useLayoutEffect(() => {
     setIsLoadingChat(true);
-    if (activeChatContext.activeChat.id)
+    if (activeChatContext.activeChat?.id)
       onSnapshot(prepareGetMessagesQuery(activeChatContext.activeChat.id), (querySnapshot) => {
         setChatMessages(querySnapshot.docs.map((doc) => doc.data()));
       });
@@ -64,6 +70,12 @@ const Home = () => {
     }
   }, [searchKeyword]);
 
+  useEffect(() => {
+    joinedChats.length 
+      ? setEmptyChat(false)
+      : setEmptyChat(true);
+  }, [joinedChats.length]);
+  
   const getChats = () => {
     const queries = prepareGetChatsQueries(authContext.currentUser.uid);
     onSnapshot(queries.getJoined, (querySnapshot) => {
@@ -83,16 +95,13 @@ const Home = () => {
         querySnapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
       );
     });
+    setIsLoading(false);
   }
 
   // Handlers //
-
   const handleLeaveChat = async () => {
     await leaveChat(activeChatContext.activeChat?.id, authContext?.currentUser)
-    .then(() => {
-      getChats();
-      activeChatContext.setActiveChat(joinedChats[0]);
-    });
+    .then(() => activeChatContext.setActiveChat([]));
   }
 
   return isLoading ? (
@@ -212,7 +221,10 @@ const Home = () => {
           <Col xs lg="9" className="bg-blue-light d-flex flex-column">
             <Row className="d-flex flex-grow-1">
               { isLoadingChat
-                ? <LoadingChat />
+                && <LoadingChat />
+              }
+              { emptyChat ? 
+                  <p className="align-self-center text-center">Join some chats!</p>
                 : <Chat messages={ chatMessages } />
               }
             </Row>
