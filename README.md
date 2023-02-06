@@ -18,7 +18,7 @@ React, Firebase, HTML, CSS, JavaScript, Bootstrap
 
 ![Login page](app_images/login.png "Login page")
 ![Registration page](app_images/registration.png "Registration page")
-![Home page](app_images/home.png "Home page")
+![Home page](app_images/home_alpha.png "Home page")
 
 ## Available Scripts
 

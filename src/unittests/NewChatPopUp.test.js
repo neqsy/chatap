@@ -1,8 +1,8 @@
 import React from "react";
 import { shallow } from "enzyme";
-import { NewChatPopUp } from "../components/NewChatPopUp/NewChatPopUp.js";
-import { AuthContext } from "../../context/AuthContext";
-import { addNewChat } from "../../services/ChatService";
+import { NewChatPopUp } from "../components/NewChatPopUp/NewChatPopUp";
+import { AuthContext } from "../context/AuthContext";
+import { addNewChat } from "../services/ChatService";
 
 jest.mock("../../services/ChatService", () => ({
   addNewChat: jest.fn(),

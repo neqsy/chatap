@@ -1,8 +1,8 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { Chat } from '../components//Chat/Chat.js';
-import { AuthContext } from "../../context/AuthContext";
-import Message from "../Message/Message";
+import { Chat } from '../components/Chat/Chat';
+import { AuthContext } from "../context/AuthContext";
+import Message from "../components/Message/Message";
 
 const messages = [
   {

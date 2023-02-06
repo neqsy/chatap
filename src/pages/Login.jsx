@@ -45,6 +45,7 @@ const Login = () => {
       setError(formatErrorCode(err.code));
     }
   };
+
   
   return (
     <Container className="bg-transparent">
