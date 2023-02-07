@@ -71,10 +71,10 @@ const Home = () => {
   }, [searchKeyword]);
 
   useEffect(() => {
-    joinedChats.length 
+    joinedChats.length || userChats.length
       ? setEmptyChat(false)
       : setEmptyChat(true);
-  }, [joinedChats.length]);
+  }, [joinedChats.length, activeChatContext.activeChat]);
   
   const getChats = () => {
     const queries = prepareGetChatsQueries(authContext.currentUser.uid);
@@ -101,7 +101,7 @@ const Home = () => {
   // Handlers //
   const handleLeaveChat = async () => {
     await leaveChat(activeChatContext.activeChat?.id, authContext?.currentUser)
-    .then(() => activeChatContext.setActiveChat([]));
+    .then(() => activeChatContext.setActiveChat(userChats.length ? userChats[0] : []));
   }
 
   return isLoading ? (
@@ -206,12 +206,12 @@ const Home = () => {
                 && <LoadingChat />
               }
               { emptyChat ? 
-                  <p className="align-self-center text-center">Join some chats!</p>
+                  <p className="h-100 d-flex justify-content-center align-items-center">Join some chats!</p>
                 : <Chat messages={ chatMessages } />
               }
             </div>
             <div className="d-flex message-input--container">
-              <MessageInput />
+              <MessageInput emptyChat={ emptyChat } />
             </div>
           </Col>
         </Row>

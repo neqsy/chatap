@@ -113,7 +113,7 @@ export const sendMessage = async (chatId, messageText, messageType, userId) => {
 
     // update chat last message in database
     await updateDoc(chatRef, {
-      lastMessage: messageType == MessageType.IMAGE ? "Sent image" : messageText,
+      lastMessage: messageType === MessageType.IMAGE ? "Sent image" : messageText,
     });
 
     return message;

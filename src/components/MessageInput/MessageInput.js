@@ -7,7 +7,7 @@ import { sendMessage, startListening, stopListening } from "../../services/ChatS
 import { uploadFileToStorage } from "../../services/Helpers";
 import MessageType from '../Message/MessageType';
 
-export const MessageInput = () => {
+export const MessageInput = ({ emptyChat }) => {
   const authContext = useContext(AuthContext);
   const activeChatContext = useContext(ActiveChatContext);
 
@@ -50,7 +50,7 @@ export const MessageInput = () => {
         console.log(err);
       }
     }
-    if (text != "") {
+    if (text !== "") {
       try {
         await sendMessage(activeChatContext.activeChat?.id, text, MessageType.TEXT, authContext?.currentUser?.uid);
       } catch (err) {
@@ -72,6 +72,7 @@ export const MessageInput = () => {
     <Form onSubmit={ handleSendMessage } className="d-flex w-100 px-2">
       <Col className="d-flex justify-content-center align-items-center gap-2">
         <Form.Control
+          disabled={ emptyChat ? true : false}
           id="text"
           type="text"
           className="shadow-sm rounded-4"
