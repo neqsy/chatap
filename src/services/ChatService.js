@@ -91,6 +91,10 @@ export const startListening = () => {
   SpeechRecognition.startListening({ continuous: true });
 };
 
+export const stopListening = () => {
+  SpeechRecognition.stopListening();
+};
+
 export const sendMessage = async (chatId, messageText, messageType, userId) => {
   const messagesRef = collection(db, "chatMessages", chatId, "messages");
 

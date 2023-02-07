@@ -20,9 +20,7 @@ export const MessageInput = () => {
     listening,
     resetTranscript,
     browserSupportsSpeechRecognition,
-    isMicrophoneAvailable,
-    speechRecognitionStart,
-    speechRecognitionStop
+    isMicrophoneAvailable
   } = useSpeechRecognition();
 
   useEffect(() => {
@@ -85,12 +83,12 @@ export const MessageInput = () => {
           onChange={ handleSetText }
         />
         <Button
-          disabled={ browserSupportsSpeechRecognition || isMicrophoneAvailable ? false : true }
+          disabled={ browserSupportsSpeechRecognition && isMicrophoneAvailable ? false : true }
           variant={ listening ? "success" : "info" }
           onTouchStart={ startListening }
           onMouseDown={ startListening }
-          onTouchEnd={ speechRecognitionStart }
-          onMouseUp={ speechRecognitionStop }
+          onTouchEnd={ stopListening }
+          onMouseUp={ stopListening }
         >
           <i className="fa-solid fa-microphone"></i>
         </Button>
