@@ -39,7 +39,7 @@ const Home = () => {
   const [modalShowJoin, setModalshowJoin] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [emptyChat, setEmptyChat] = useState(true);
-  const [lastLeftChat, setLastLeftChat] = useState("");
+  const [showMobileMenu, setShowMobileMenu] = useState(true);
 
   // Effects //
   useEffect(() => {
@@ -117,42 +117,32 @@ const Home = () => {
         handleClose={ () => setModalshowJoin(false) }
         othersChats={ othersChats }
       />
-      <Container className="d-flex flex-column content-container" fluid>
-        <Row className="header-row bg-blue">
-          <Col xs="12" sm="6" lg="3" className="bg-blue-dark p-4">
-            <Row>
-              <Col xs lg="12" xl="3" className="d-flex align-items-center">
-                <h3 className="h3 font-white font-weight-bold">{ APP_NAME }</h3>
-              </Col>
-              <Col xs lg="8" xl="6" className="d-flex align-items-center justify-content-start gap-2">
-                <RoundedImg
-                  imgUrl={ authContext?.currentUser?.photoURL }
-                  size={ RoundedImgSize.SMALL }
-                  altText={ "User Avatar" }
-                />
-                <TextInfo
-                  textTop={ authContext?.currentUser?.displayName }
-                  textBottom={ "" }
-                  type={ TextInfoType.USER }
-                  fontColor={ TextInfoColor.WHITE }
-                />
-              </Col>
-              <Col
-                xs
-                lg="4"
-                xl="3"
-                className="d-flex align-items-center justify-content-end"
-              >
-                <Button variant="secondary" onClick={ logOut }>
-                  Logout
-                </Button>
-              </Col>
-            </Row>
+      <Container className="vh-100 d-flex flex-column content-container" fluid>
+        <Row xs="12" sm="12" md="12" lg="12" xl="12" xxl="12" className="bg-blue header-row d-flex">
+          <Col xs="12" sm="12" md="4" lg="4" xl="4" xxl="4" className="d-flex gap-2 bg-blue-dark align-items-center justify-content-between px-4 py-2">
+            <h3 className="font-white">{ APP_NAME }</h3>
+            <div className="d-flex flex-column align-items-center justify-content-center">
+              <RoundedImg
+                imgUrl={ authContext?.currentUser?.photoURL }
+                size={ RoundedImgSize.SMALL }
+                altText={ "User Avatar" }
+              />
+              <TextInfo
+                textTop={ authContext?.currentUser?.displayName }
+                textBottom={ "" }
+                type={ TextInfoType.USER }
+                fontColor={ TextInfoColor.WHITE }
+              />
+            </div>
+            <Button variant="secondary" onClick={ logOut }>
+              Logout
+            </Button>
+            <Button className="mobile-menu--button" variant="info" onClick={ () => setShowMobileMenu(!showMobileMenu) }>
+              <i className="fa fa-bars" aria-hidden="true"></i>
+            </Button>
           </Col>
-          <Col className="d-flex align-items-center p-4">
+          <Col xs sm md lg="8" xl="8" xxl="8" className="d-flex align-items-center justify-content-between p-4">
             <h2 className="font-white">{ activeChatContext.activeChat?.data?.name }</h2>
-          </Col>
-          <Col className="d-flex align-items-center justify-content-end p-4">
             { activeChatContext.activeChat?.data?.userId !== authContext?.currentUser?.uid &&
               <Button variant="warning" onClick={ handleLeaveChat }>
                 Leave chat
@@ -160,66 +150,58 @@ const Home = () => {
             }
           </Col>
         </Row>
-        <Row className="content-row">
-          <Col xs lg="3" className="bg-blue d-flex flex-column p-4">
-            <Row>
-              <Col>
-                <SearchBar searchKeyword = { searchKeyword } setSearchKeyword={ setSearchKeyword } />
-              </Col>
-            </Row>
-            <Row className="pt-4 d-flex">
-              <Col className="h-100">
-                <Accordion defaultActiveKey={["0", "1"]} alwaysOpen>
-                  <Accordion.Item eventKey="0">
-                    <Accordion.Header>All chats</Accordion.Header>
-                    <Accordion.Body>
-                      <div className="scroll-accordion">
-                        { (searchKeyword.length ? filteredJoinedChats : joinedChats)?.map((chat) => (
-                          <ChatBar
-                            key={ chat.id }
-                            chat={ chat }
-                          />
-                        )) }
-                      </div>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                  <Accordion.Item eventKey="1">
-                    <Accordion.Header>My chats</Accordion.Header>
-                    <Accordion.Body>
-                      <div className="scroll-accordion">
-                        { (searchKeyword.length ? filteredUserChats : userChats)?.map((chat) => (
-                          <ChatBar
-                            key={ chat.id }
-                            chat={ chat }
-                          />
-                        )) }
-                      </div>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </Accordion>
-              </Col>
-            </Row>
-            <Row className="h-100">
-              <Col className="d-flex align-items-end justify-content-between">
-                <Button
-                  variant="info"
-                  className="bg-blue-accent border-0 font-white"
-                  onClick={ () => setModalshowAddd(true) }
-                >
-                  Add chat
-                </Button>
-                <Button
-                  variant="info"
-                  className="bg-blue-accent border-0 font-white "
-                  onClick={ () => setModalshowJoin(true) }
-                >
-                  Join chat
-                </Button>
-              </Col>
-            </Row>
+        <Row xs="12" sm="12" md="12" lg="12" xl="12" xxl="12" className="content-row d-flex">
+          <Col xs="12" sm="12" md="4" lg="4" xl="4" xxl="4" className={`d-flex flex-column justify-content-around gap-4 px-4 py-4 h-100 mobile-menu ${showMobileMenu ? 'd-block' : 'd-none'}`}>
+            <SearchBar searchKeyword = { searchKeyword } setSearchKeyword={ setSearchKeyword } />
+            <div className="h-100">
+              <Accordion defaultActiveKey={["0", "1"]} alwaysOpen>
+                <Accordion.Item eventKey="0">
+                  <Accordion.Header>All chats</Accordion.Header>
+                  <Accordion.Body>
+                    <div className="scroll-accordion">
+                      { (searchKeyword.length ? filteredJoinedChats : joinedChats)?.map((chat) => (
+                        <ChatBar
+                          key={ chat.id }
+                          chat={ chat }
+                        />
+                      )) }
+                    </div>
+                  </Accordion.Body>
+                </Accordion.Item>
+                <Accordion.Item eventKey="1">
+                  <Accordion.Header>My chats</Accordion.Header>
+                  <Accordion.Body>
+                    <div className="scroll-accordion">
+                      { (searchKeyword.length ? filteredUserChats : userChats)?.map((chat) => (
+                        <ChatBar
+                          key={ chat.id }
+                          chat={ chat }
+                        />
+                      )) }
+                    </div>
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
+            </div>
+            <div className="d-flex justify-content-between">
+              <Button
+                variant="info"
+                className="bg-blue-accent border-0 font-white"
+                onClick={ () => setModalshowAddd(true) }
+              >
+                Add chat
+              </Button>
+              <Button
+                variant="info"
+                className="bg-blue-accent border-0 font-white "
+                onClick={ () => setModalshowJoin(true) }
+              >
+                Join chat
+              </Button>
+            </div>
           </Col>
-          <Col xs lg="9" className="bg-blue-light d-flex flex-column">
-            <Row className="d-flex flex-grow-1">
+          <Col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" className="bg-blue-light d-flex flex-column h-100">
+            <div className="h-100 chat-scroll">
               { isLoadingChat
                 && <LoadingChat />
               }
@@ -227,10 +209,10 @@ const Home = () => {
                   <p className="align-self-center text-center">Join some chats!</p>
                 : <Chat messages={ chatMessages } />
               }
-            </Row>
-            <Row className="bg-white d-flex align-items-center">
+            </div>
+            <div className="d-flex message-input--container">
               <MessageInput />
-            </Row>
+            </div>
           </Col>
         </Row>
       </Container>

@@ -19,11 +19,10 @@ export const Chat = ({ messages }) => {
   }, [messages]);
 
   return (
-    <Col xs lg="12" className="chat p-4">
-      { messages.map((message) => (
-        <>
+    <div>
+      { messages.map((message, index) => (
+        <div key={ message.sentAt.nanoseconds }>
           <Message
-            key={ message.sentAt }
             message={ message }
             type={
               message?.type === "notification"
@@ -34,8 +33,8 @@ export const Chat = ({ messages }) => {
             }
           />
           <span ref={ messagesEndRef } />
-        </>
+        </div>
       )) }
-    </Col>
+    </div>
   );
 };

@@ -1,11 +1,62 @@
-/* Containers */
+.header-row {
+  min-height: 10%;
+}
+
+.content-row {
+  height: 90%;
+}
 
 .content-container {
-  height: 100vh;
+  overflow: hidden;
+}
+
+.chat-scroll {
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .scroll-accordion {
-  height: 25vh;
+  max-height: 25vh;
+  min-height: 8vh;
   overflow-y: scroll;
   overflow-x: hidden;
+}
+
+.current  {
+  border: 1px solid red;
+}
+
+.mobile-menu--button {
+  display: none;
+}
+
+.mobile-menu {
+  display: none;
+}
+
+.message-input--container {
+  height: 15%;
+}
+
+@media (max-width: 768px) { 
+  .header-row {
+    min-height: 20%;
+  }
+
+  .content-row {
+    height: 80%;
+  }
+
+  .scroll-accordion {
+    max-height: 16vh;
+    min-height: 8vh;
+  }
+
+  .mobile-menu--button {
+    display: block;  
+  }
+
+  .message-input--container {
+    height: 20%;
+  }
 }

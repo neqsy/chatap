@@ -22,3 +22,9 @@
   color: var(--blue-dark); 
   text-align: center;
 }
+
+@media (max-width: 768px) { 
+  .message-sender {
+    display: none;
+  }  
+}

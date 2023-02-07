@@ -88,3 +88,7 @@ p {
 .font-black {
   color: black;
 }
+
+#root {
+  max-height: 100vh;
+}

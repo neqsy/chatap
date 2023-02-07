@@ -35,5 +35,5 @@ export const getMessageDate = (date) => {
 };
 
 export const searchChats = (keyword, chats) => {
-  return chats.filter((chat) => chat.data.name.includes(keyword));
+  return chats.filter((chat) => chat.data.name.toString().toLowerCase().includes(keyword.toString().toLowerCase()));
 }

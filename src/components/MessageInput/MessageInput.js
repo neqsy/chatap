@@ -69,11 +69,8 @@ export const MessageInput = () => {
   }
 
   return (
-    <Form onSubmit={ handleSendMessage } className="m-auto">
-      <Col
-        className="d-flex gap-4 justify-content-center align-items-center"
-        style={{ height: "10vh" }}
-      >
+    <Form onSubmit={ handleSendMessage } className="d-flex w-100 px-2">
+      <Col className="d-flex justify-content-center align-items-center gap-2">
         <Form.Control
           id="text"
           type="text"

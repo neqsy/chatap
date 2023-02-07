@@ -62,7 +62,7 @@ export default function Message({ message, type }) {
                   </div>
                   <div className="w-100 p-2 d-flex justify-content-between">
                     <small className="text-end">{ getMessageDate(message?.sentAt?.seconds) }</small>
-                    <small className="text-start">{ `${user?.displayName}` }</small>
+                    <small className="message-sender text-start">{ `${user?.displayName}` }</small>
                   </div>
                 </>
               ) }
@@ -79,7 +79,7 @@ export default function Message({ message, type }) {
                   )}  
                   </div>
                   <div className="w-100 p-2 d-flex justify-content-between">
-                    <small>{ `${user?.displayName}` }</small>
+                    <small className="message-sender">{ `${user?.displayName}` }</small>
                     <small>{ getMessageDate(message?.sentAt?.seconds) }</small>
                   </div>
                 </>
