@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef } from "react";
-import { Col } from "react-bootstrap";
 import { AuthContext } from "../../context/AuthContext";
 import Message from "../Message/Message";
 import MessageType from "../Message/MessageType";
