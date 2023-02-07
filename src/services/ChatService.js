@@ -1,7 +1,7 @@
 import { addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, orderBy, query, updateDoc, where } from "firebase/firestore";
 import SpeechRecognition from "react-speech-recognition";
 import MessageType from "../components/Message/MessageType";
-import { CHAT_NOTIFICATIONS } from "../constants";
+import { CHAT_NOTIFICATIONS, DEFAULT_CHAT_IMAGE_URL } from "../constants";
 import { db } from "../firebase";
 import { uploadFileToStorage } from "./Helpers";
 
@@ -21,13 +21,16 @@ export const addNewChat = async (chatName, userId, chatImage) => {
       MessageType.NOTIFICATION
     );
 
-    await uploadFileToStorage("chatImages", chatRef.id, chatImage).then(
-      async (downloadURL) => {
-        await updateDoc(chatRef, {
-          photoURL: downloadURL,
-        });
-      }
-    );
+    // save chat image or use default
+    var downloadURL;
+    if (chatImage) {
+      downloadURL = await uploadFileToStorage("chatImages", chatRef.id, chatImage);
+    } else {
+      downloadURL = DEFAULT_CHAT_IMAGE_URL;
+    }
+    await updateDoc(chatRef, {
+      photoURL: downloadURL,
+    });
   } catch (err) {
     throw err;
   }
