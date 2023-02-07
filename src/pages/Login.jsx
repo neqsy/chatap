@@ -26,7 +26,6 @@ const Login = () => {
       await credentialsLogin(email, password);
       navigate("/");
     } catch (err) {
-      console.log(err.message);
       if (err.message === "E-mail empty" || err.message === "Password empty")
         setError(err.message);
       else

@@ -2,6 +2,8 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "../firebase";
 
 export const formatErrorCode = (errorCode) => {
+  if (errorCode.indexOf('/') === -1)
+    return errorCode;
   const errorMessage = errorCode.split('/')[1].replaceAll('-', ' ');
   return errorMessage.charAt(0).toUpperCase() + errorMessage.slice(1);
 }

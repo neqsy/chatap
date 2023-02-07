@@ -1,5 +1,3 @@
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -8,10 +6,8 @@ import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import { useNavigate, Link } from "react-router-dom";
-import { auth, db } from "../firebase";
-import { DEFAULT_AVATAR_URL } from "../constants";
-import { facebookLogin, googleLogin } from "../services/AuthService";
-import { formatErrorCode, uploadFileToStorage } from "../services/Helpers";
+import { credentialsRegister, facebookLogin, googleLogin } from "../services/AuthService";
+import { formatErrorCode } from "../services/Helpers";
 
 const Registration = () => {
   const [isImageSelected, setIsImageSelected] = useState(false);
@@ -20,6 +16,26 @@ const Registration = () => {
 
   const navigate = useNavigate();
 
+  const handleFacebookLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await facebookLogin();
+      navigate("/");
+    } catch (err) {
+      setError(formatErrorCode(err.code));
+    }
+  };
+
+  const handleGoogleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await googleLogin();
+      navigate("/");
+    } catch (err) {
+      setError(formatErrorCode(err.code));
+    }
+  };
+
   const handleImageChange = async (e) => {
     setIsImageSelected(true);
   };
@@ -27,49 +43,23 @@ const Registration = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setError("");
-
     const displayName = e.target[0].value;
     const email = e.target[1].value;
     const password = e.target[2].value;
     const avatar = e.target[3].files[0];
 
-    if (!displayName) setError("Display name empty");
-    else if (!password) setError("Password empty");
-    else {
-      try {
-        // create user in firebase authentication
-        const res = await createUserWithEmailAndPassword(auth, email, password);
-
-        // save user avatar or use default
-        setLoading(true);
-        var downloadURL;
-        if (avatar) {
-          downloadURL = await uploadFileToStorage("userImages", res.user.uid, avatar);
-        } else {
-          downloadURL = DEFAULT_AVATAR_URL;
-        }
-
-        // update user avatar in firebase authentication
-        await updateProfile(res.user, {
-          displayName,
-          photoURL: downloadURL,
-        });
-
-        // create user on firestore database
-        await setDoc(doc(db, "users", res.user.uid), {
-          uid: res.user.uid,
-          displayName,
-          email,
-          photoURL: downloadURL,
-        });
-
-        // go to home page
-        navigate("/");
-      } catch (err) {
+    try {
+      setError("");
+      setLoading(true);
+      await credentialsRegister(displayName, email, password, avatar);
+      setLoading(false);
+      navigate("/");
+    } catch (err) {
+      setLoading(false);
+      if (err.message === "Display name empty" || err.message ==="Email empty" || err.message === "Password empty")
+        setError(err.message);
+      else
         setError(formatErrorCode(err.code));
-        setLoading(false);
-      }
     }
   };
 
@@ -79,14 +69,14 @@ const Registration = () => {
         <Col className="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
           <Button
             className="btn-white w-100 mt-4 py-2 rounded-4"
-            onClick={ facebookLogin }
+            onClick={ handleFacebookLogin }
           >
             Log in with Facebook{" "}
             <i className="fa-brands fa-square-facebook"></i>
           </Button>
           <Button
             className="btn-white w-100 my-4 py-2 rounded-4"
-            onClick={ googleLogin }
+            onClick={ handleGoogleLogin }
           >
             Log in with Google <i className="fa-brands fa-google"></i>
           </Button>
