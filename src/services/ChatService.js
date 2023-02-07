@@ -100,10 +100,10 @@ export const stopListening = () => {
 
 export const sendMessage = async (chatId, messageText, messageType, userId) => {
   const messagesRef = collection(db, "chatMessages", chatId, "messages");
-
   const chatRef = doc(db, "chats", chatId);
 
   try {
+    // save message in firebase database
     const message = await addDoc(messagesRef, {
       sentAt: new Date(),
       sentBy: userId ? userId : "system",
@@ -111,8 +111,9 @@ export const sendMessage = async (chatId, messageText, messageType, userId) => {
       type: messageType,
     });
 
+    // update chat last message in database
     await updateDoc(chatRef, {
-      lastMessage: messageText,
+      lastMessage: messageType == MessageType.IMAGE ? "Sent image" : messageText,
     });
 
     return message;
