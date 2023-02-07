@@ -3,14 +3,16 @@ import { Button, Col, Form } from "react-bootstrap";
 import { useSpeechRecognition } from 'react-speech-recognition';
 import { ActiveChatContext } from "../../context/ActiveChatContext";
 import { AuthContext } from '../../context/AuthContext';
-import { sendMessage, startListening } from "../../services/ChatService";
+import { sendMessage, startListening, stopListening } from "../../services/ChatService";
+import { uploadFileToStorage } from "../../services/Helpers";
 import MessageType from '../Message/MessageType';
 
 export const MessageInput = () => {
   const authContext = useContext(AuthContext);
   const activeChatContext = useContext(ActiveChatContext);
 
-  const [textMessage, setTextMessage] = useState("");
+  const [text, setText] = useState("");
+  const [image, setImage] = useState(null);
 
   // Speech Recognition //
   const {
@@ -22,45 +24,65 @@ export const MessageInput = () => {
     speechRecognitionStart,
     speechRecognitionStop
   } = useSpeechRecognition();
+
+  useEffect(() => {
+    setText(transcript);
+  }, [transcript]);
   
-  const handleSetMessage = (e) => {
+  const handleSetText = (e) => {
     resetTranscript();
-    setTextMessage(e.target.value);
+    setText(e.target.value);
+  };
+
+  const handleSetImage = (e) => {
+    setImage(e.target.files[0]);
   };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    const messageText = e.target[0].value;
 
-    const messageDocRef = await sendMessage(activeChatContext?.activeChat?.id, messageText, MessageType.MESSAGE, authContext?.currentUser?.uid);
-
-    resetMessageInput();
+    if (image != null) {
+      const imagePath = "chatImageMessages/" + authContext?.currentUser?.uid;
+      const date = new Date();
+      const imageName = date.toISOString();
+      try {
+      const imageURL = await uploadFileToStorage(imagePath, imageName, image);
+      await sendMessage(activeChatContext.activeChat?.id, imageURL, MessageType.IMAGE, authContext?.currentUser?.uid)
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    if (text != "") {
+      try {
+        await sendMessage(activeChatContext.activeChat?.id, text, MessageType.TEXT, authContext?.currentUser?.uid);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+      
+    resetInput();
   };
 
-  const resetMessageInput = () => {
+  const resetInput = () => {
     if(transcript) 
       resetTranscript();
-    setTextMessage("");
+    setText("");
+    setImage(null);
   }
 
-  useEffect(() => {
-    setTextMessage(transcript);
-  }, [transcript]);
-
   return (
-    <Form onSubmit={handleSendMessage} className="m-auto">
+    <Form onSubmit={ handleSendMessage } className="m-auto">
       <Col
         className="d-flex gap-4 justify-content-center align-items-center"
         style={{ height: "10vh" }}
       >
         <Form.Control
-          id="message"
+          id="text"
           type="text"
           className="shadow-sm rounded-4"
-          name="name"
-          placeholder="..."
-          value={ textMessage }
-          onChange={ handleSetMessage }
+          placeholder="Type something..."
+          value={ text }
+          onChange={ handleSetText }
         />
         <Button
           disabled={ browserSupportsSpeechRecognition || isMicrophoneAvailable ? false : true }
@@ -72,6 +94,21 @@ export const MessageInput = () => {
         >
           <i className="fa-solid fa-microphone"></i>
         </Button>
+        <Form.Group>
+          <Form.Control
+            id="image"
+            type="file"
+            accept="image/png, image/gif, image/jpeg"
+            style={ { display: "none" } }
+            onChange={ handleSetImage }
+          />
+          <Form.Label
+            htmlFor="image"
+            className={"btn btn-info my-0 " + (image ? "border-success" : "border-none")}
+          >
+            <i className="fa-solid fa-image"></i>
+          </Form.Label>
+        </Form.Group>
         <Button type="submit" variant="primary">
           Send
         </Button>

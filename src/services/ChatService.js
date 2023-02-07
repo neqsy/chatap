@@ -91,7 +91,7 @@ export const startListening = () => {
   SpeechRecognition.startListening({ continuous: true });
 };
 
-export const sendMessage = async (chatId, messageText, type, userId) => {
+export const sendMessage = async (chatId, messageText, messageType, userId) => {
   const messagesRef = collection(db, "chatMessages", chatId, "messages");
 
   const chatRef = doc(db, "chats", chatId);
@@ -101,7 +101,7 @@ export const sendMessage = async (chatId, messageText, type, userId) => {
       sentAt: new Date(),
       sentBy: userId ? userId : "system",
       text: messageText,
-      type: type,
+      type: messageType,
     });
 
     await updateDoc(chatRef, {
@@ -112,20 +112,6 @@ export const sendMessage = async (chatId, messageText, type, userId) => {
   } catch (err) {
     throw err;
   }
-};
-
-export const sendImageMessage = async (
-  messageImage,
-  messageId,
-  messageDocRef
-) => {
-  await uploadFileToStorage("chatImageMessages", messageId, messageImage).then(
-    async (downloadURL) => {
-      await updateDoc(messageDocRef, {
-        photoURL: downloadURL,
-      });
-    }
-  );
 };
 
 export const getUserById = async (userId) => {

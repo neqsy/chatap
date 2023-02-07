@@ -25,11 +25,12 @@ export default function Message({ message, type }) {
     <Row
       className={`d-flex p-2 ${ type === MessageType.USERS && "flex-row-reverse" }`}
     >
-      { type === MessageType.NOTIFICATION ? (
+      { type === MessageType.NOTIFICATION 
+      ? (
         <div className="message-notification p-2">
           <small className="message">{ message?.text }</small>
-        </div>
-      ) : (
+        </div>)
+      : (
         <>
           <Col className="flex-grow-1"></Col>
           <Col
@@ -50,7 +51,14 @@ export default function Message({ message, type }) {
               { type === MessageType.MY && (
                 <>
                   <div className="message-my p-2">
-                    <p className="message">{message?.text}</p>
+                  {
+                    message.type === MessageType.IMAGE && (
+                      <img className="message" src={message?.text}></img>
+                  )}
+                  {
+                    message.type === MessageType.TEXT && (
+                      <p className="message">{message?.text}</p>
+                  )}  
                   </div>
                   <div className="w-100 p-2 d-flex justify-content-between">
                     <small className="text-end">{ getMessageDate(message?.sentAt?.seconds) }</small>
@@ -61,7 +69,14 @@ export default function Message({ message, type }) {
               { type === MessageType.USERS && (
                 <>
                   <div className="message-users p-2">
-                    <p className="message">{ message?.text }</p>
+                  {
+                    message.type === MessageType.IMAGE && (
+                      <img className="message" src={message?.text}></img>
+                  )}
+                  {
+                    message.type === MessageType.TEXT && (
+                      <p className="message">{message?.text}</p>
+                  )}  
                   </div>
                   <div className="w-100 p-2 d-flex justify-content-between">
                     <small>{ `${user?.displayName}` }</small>
