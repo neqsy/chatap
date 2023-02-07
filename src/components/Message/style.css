@@ -1,0 +1,30 @@
+.message {
+  word-wrap: break-word;
+  word-break: break-word;
+  width: 100%;
+}
+
+.message-my {
+  border-radius: 0 10px 0 0;
+  background-color: var(--blue-accent);
+  color: white;
+  height: auto;
+}
+
+.message-users {
+  border-radius: 10px 0 0 0;
+  background-color: white;
+  color: black;
+}
+
+.message-notification {
+  background-color: var(--blue-light);
+  color: var(--blue-dark); 
+  text-align: center;
+}
+
+@media (max-width: 768px) { 
+  .message-sender {
+    display: none;
+  }  
+}

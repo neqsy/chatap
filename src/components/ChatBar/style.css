@@ -1,0 +1,8 @@
+.chat-bar {
+  max-height: 100%;
+  cursor: pointer;
+}
+
+.active {
+  background-color: var(--blue-accent);
+}

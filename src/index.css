@@ -1,0 +1,94 @@
+:root {
+  background: linear-gradient(rgb(28, 170, 255), rgb(50, 102, 133));
+  height: 100%;
+
+  --blue-light: #C5DCEA;
+  --blue-dark: #131C29;
+  --blue: #0279C2;
+  --blue-accent: #48A3B7;
+  --grey-light: #D9D9D9;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.fa-square-facebook {
+  color: #3b5998;
+  background-image: linear-gradient( to bottom, transparent 20%, white 20%, white 93%, transparent 93% );
+  background-size: 55%;
+  background-position: 70% 0;
+  background-repeat: no-repeat;
+}
+
+.fa-google {
+  background: conic-gradient(from -45deg, #ea4335 110deg, #4285f4 90deg 180deg, #34a853 180deg 270deg, #fbbc05 270deg) 73% 55%/150% 150% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-white, .btn-white:active, .btn-white:visited {
+  background-color: white;
+  color: black;
+}
+
+.btn-white:hover {
+  background-color: rgb(216, 226, 232);
+}
+
+.btn-blue, .btn-blue:hover, .btn-blue:active, .btn-blue:visited {
+  background-color: rgb(74, 143, 189);
+  color: white
+}
+
+.btn-blue:hover {
+  background-color: rgb(54, 123, 169);
+}
+
+.fa-user-plus{
+  margin-right: 1.5em;
+}
+
+.bg-blue-dark {
+  background-color: var(--blue-dark);
+}
+
+.bg-blue-light {
+  background-color: var(--blue-light);
+}
+
+.bg-blue {
+  background-color: var(--blue);
+}
+
+.bg-grey-light {
+  background-color: var(--grey-light);
+}
+
+.bg-blue-accent {
+  background-color: var(--blue-accent);
+}
+
+.bg-white {
+  background-color: white;
+}
+
+.font-white {
+  color: white;
+}
+
+.font-black {
+  color: black;
+}
+
+#root {
+  max-height: 100vh;
+}
