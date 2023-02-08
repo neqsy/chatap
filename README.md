@@ -14,6 +14,9 @@ React, Firebase, HTML, CSS, JavaScript, Bootstrap
 ## Prototype
 [Figma Prototype](https://www.figma.com/file/bFdhAlHkwKN9Jkn5il5gMP/chatap?node-id=0%3A1&t=KhHuNJpHI2FNI7r9-1)
 
+## App link
+[Deployed app](https://tpf-chatap.web.app/)
+
 ## App sample views
 
 ![Login page](app_images/login.png "Login page")
